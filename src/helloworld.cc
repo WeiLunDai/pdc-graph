@@ -1,5 +1,4 @@
-#include "helloworld.h"
-#include <gtkmm-3.0/gtkmm/enums.h>
+#include "../include/helloworld.h"
 #include <iostream>
 
 HelloWorld::HelloWorld() : 

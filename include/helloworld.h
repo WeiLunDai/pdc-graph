@@ -2,7 +2,6 @@
 #define GTKMM_EXAMPLE_HELLOWORLD_H
 
 #include <gtkmm-3.0/gtkmm.h>
-#include <gtkmm-3.0/gtkmm/box.h>
 
 class HelloWorld : public Gtk::Window 
 {
