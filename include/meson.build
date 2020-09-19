@@ -1,1 +1,2 @@
-install_headers('helloworld.h')
+ins_header = ['gui_tree.h', 'graph.h']
+install_headers(ins_header)
