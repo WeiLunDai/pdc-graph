@@ -4,12 +4,13 @@ project('c++ graph display by gtkmm ', 'cpp',
 add_global_arguments('-DSOME_TOKEN=value', language : 'cpp')
 
 lib_dep = [dependency('gtkmm-3.0'), dependency('cairomm-1.0')]
+test_dep = dependency('gtest')
 
 inc = include_directories('include')
 
 subdir('include')
 subdir('src')
-#subdir('test')
+subdir('test')
 
 pkg_mod = import('pkgconfig')
 pkg_mod.generate(libraries : graphDlib,

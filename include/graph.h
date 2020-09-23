@@ -100,11 +100,11 @@ public:
 
 };
 
-class Graph_test {
-    Graph::GraphTable gt;
-    Graph g;
-    public:
-    Graph_test();
-};
+// class Graph_test {
+//     Graph::GraphTable gt;
+//     Graph g;
+//     public:
+//     Graph_test();
+// };
 
 #endif

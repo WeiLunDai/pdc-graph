@@ -88,7 +88,8 @@ c_label Edge::get_dst_info() const
 
 /*-------------*/
 
-Graph::Graph()
+Graph::Graph() :
+    info(""), node_cache(), graph()
 {
 }
 
@@ -114,7 +115,7 @@ Graph::~Graph()
         {
             delete(*edge_it);
         }
-        delete(it->first);
+        //delete(it->first);
     }
 }
 
@@ -201,20 +202,22 @@ Edge* Graph::add_edge(c_label source, c_label dest)
     // edge imply two node exist
     // check those two node
     // or add them to graph
-    Node* src = find_node(source);
-    Node* dst = find_node(dest);
+    Node* n_src = find_node(source);
+    Node* n_dst = find_node(dest);
 
-    if (src == nullptr)
-        src = add_node(source);
+    if (n_src == nullptr)
+        n_src = add_node(source);
 
-    if (dst == nullptr)
-        dst = add_node(dest);
+    if (n_dst == nullptr)
+        n_dst = add_node(dest);
 
     // check edge existence
     if ( find_edge(source, dest) == nullptr )
     {
-        GraphBody::iterator it = graph.find(src);
-        it->second.insert( new Edge(src, dst) );
+        Edge* temp = new Edge(source, dest);
+        GraphBody::iterator it = graph.find(n_src);
+        it->second.insert(temp);
+        return temp;
     }
 
     return nullptr;
@@ -319,18 +322,18 @@ Graph* Graph::depth_firsh_search(c_label name)
 
 /*--------------------*/
 
-Graph_test::Graph_test():
-    gt( { {"1", "2"}, {"1", "3"}, {"2", "4"},
-          {"2", "6"}, {"3", "4"}, {"3", "5"},
-          {"4", "6"}, {"5", "1"}, {"6", "5"}} ),
-    g(gt)
-{
-    std::cout << g.get_info() << std::endl;
-
-    Graph *bfs = g.breadth_firsh_search("2");
-    std::cout << bfs->get_info() << std::endl;
-    delete(bfs);
-    bfs = g.depth_firsh_search("2");
-    std::cout << bfs->get_info() << std::endl;
-    delete(bfs);
-};
+// Graph_test::Graph_test():
+//     gt( { {"1", "2"}, {"1", "3"}, {"2", "4"},
+//           {"2", "6"}, {"3", "4"}, {"3", "5"},
+//           {"4", "6"}, {"5", "1"}, {"6", "5"}} ),
+//     g(gt)
+// {
+//     std::cout << g.get_info() << std::endl;
+//
+//     Graph *bfs = g.breadth_firsh_search("2");
+//     std::cout << bfs->get_info() << std::endl;
+//     delete(bfs);
+//     bfs = g.depth_firsh_search("2");
+//     std::cout << bfs->get_info() << std::endl;
+//     delete(bfs);
+// };
