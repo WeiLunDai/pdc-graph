@@ -1,4 +1,3 @@
-#include <iostream>
 #include "gui_tree.h"
 #include "graph.h"
 #include <gtkmm-3.0/gtkmm.h>

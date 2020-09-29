@@ -1,5 +1,6 @@
 #include "edge_test.h"
 #include "graph.h"
+#include <queue>
 
 void EdgeTest::SetUp()
 {

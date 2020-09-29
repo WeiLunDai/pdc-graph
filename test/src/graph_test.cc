@@ -1,6 +1,5 @@
 #include "graph_test.h"
 #include "graph.h"
-#include <string>
 
 void GraphTest::SetUp()
 {
