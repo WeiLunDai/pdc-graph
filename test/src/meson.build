@@ -1,6 +1,6 @@
 
 # test source file
-src_test = ['node_test.cc', 'edge_test.cc']
+src_test = ['node_test.cc', 'edge_test.cc', 'graph_test.cc']
 
 # generate shared library for test
 # install isn't necessary

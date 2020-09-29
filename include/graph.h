@@ -36,16 +36,11 @@ class _node {
     std::string _info;
     std::vector<Node*> _to;
     size_t _now_at;
-    //std::vector<Node*>::iterator _now_at;
 };
 
 class Node {
 private:
     _node* node;
-//     std::string info;
-//     std::list<Node*> to;
-//     std::list<Node*>::iterator now_at;
-    
 
 public:
     // init:
@@ -54,8 +49,8 @@ public:
     // Node(Node& ref);
     Node(const Node& ref);    
     ~Node();
+
     const Node& operator=(const Node& rhs) const;
-    // bool operator==(Node& rhs);
     bool operator==(const Node& rhs) const;
     bool operator!=(Node& rhs);
 
@@ -72,15 +67,6 @@ public:
     void begin();
     Node& to();
     void next();
-    // typedef std::list<Node*>::iterator to_ref;
-    // Node(Info info);
-    // //Node(Node& node) ;
-    // //Node& operator=(Node& node);
-    //
-    // Node* clone();
-    // void add();
-    // virtual Info get_info() const;
-    // virtual ~Node() {};
 };
 
 //
@@ -113,10 +99,6 @@ class _edge {
 class Edge {
 private:
     _edge* edge;
-    // std::string info;
-    // // std::pair<Node*, Node*> edge;
-    // Node *source;
-    // Node *dest;
 
 public:
     // init:
@@ -139,19 +121,6 @@ public:
 
     // edit:
     void move();     
-    // Edge(Info source, Info dest);
-    // Edge(Node* source, Node* dest);
-    // virtual ~Edge() {};
-    // //Edge(Edge& e);
-    //
-    // virtual Edge* clone();
-    //
-    // // Node* get_source();
-    // // Node* get_dest();
-    //
-    // virtual const char *get_info();
-    // Info get_src_info() const;
-    // Info get_dst_info() const;
 };
 
 // 
@@ -177,41 +146,29 @@ public:
 // graph.bfs()          -> do bfs 
 // graph.dfs()          -> do dfs
 //
-//
-class Graph;
+
 class _graph {
     friend class Graph;
     std::string _info;
     std::vector<Node*> nodes;
     std::stack<Node*> stk;
-    // std::queue<Node*> que;
-    Edge* edge;
-    Graph* travel_graph;
 };
 
 class Graph {
 private:
     _graph* graph;
-    //typedef std::set<Node*> Nodes;
-    // typedef std::set<Edge*> EdgeSet;
-    // typedef std::map<Node*, EdgeSet > GraphBody;
-    // typedef std::map<std::string, Node*> NodeCache;
-    // //Nodes nodes;
-    // //Edges edges;
-    // std::string info;
-    // NodeCache node_cache;
-    // GraphBody graph;
-    // Edge edge;
-    //bool find_node(Node& n);
-    // Node* find_sub(Node& source, Node& target);
+    bool gt_alloc = false;
 
 public:
     typedef std::multimap< std::string, std::string > GraphTable;
   
     // init:
     Graph();
+    Graph(const Graph& ref);
     Graph(GraphTable);
     ~Graph();
+
+    Graph& operator=(const Graph& rhs);
 
     // info:
     Node* find(Node& target);
@@ -221,63 +178,17 @@ public:
     size_t edgeSize();
 
     // selector:
-    // Node& nowAt();
-    // Node& to();
     void next();
 
     // edit:
-    bool add(Node& node);
-    bool add(Edge& edge);
+    void add(Node& node);
+    void add(Edge& edge);
     bool del(Node& node);
     bool del(Edge& edge);
 
     // travel:
-    // bool startAt(Node& node);
-    bool breathFirstSearch(Node& node);
-    bool depthFirstSearch(Node& node);
-    // Graph();
-    // Graph(GraphTable table);
-    // ~Graph();
-    //
-    // // information
-    // Info get_info();
-    // size_t size_node();
-    // size_t size_edge();
-    //
-    // // TODO:
-    // // you should modify or add interface
-    // // *responsibility assign:
-    // //  1. create node and edge by graph itself
-    // //     so, information is necessary
-    // //  2. create node and edge by user
-    // //     graph only handle pointer structure
-    // //  3. create a handle class for graph
-    // //
-    //
-    // Node* find_node(Info name);
-    // Edge* find_edge(Info source, Info dest);
-    //
-    // Node* add_node(Info name);
-    // // bool  add_node(Node* node);
-    // Edge* add_edge(Info source, Info dest);
-    // // bool  add_edge(Edge* edge);
-    // // bool del_node(Info name);
-    // // bool del_edge(Info source, Info dest);
-    //
-    // // void add_node(Node& n);
-    // // void add_edge(Edge& e);
-    //
-    // // bool find_edge(Edge& e);
-    // Graph* breadth_firsh_search(Info name);
-    // Graph* depth_firsh_search(Info name);
-    //
+    Graph& breathFirstSearch(Node& node);
+    Graph& depthFirstSearch(Node& node);
 };
-
-// class Graph_test {
-//     Graph::GraphTable gt;
-//     Graph g;
-//     public:
-//     Graph_test();
-// };
 
 #endif

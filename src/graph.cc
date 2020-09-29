@@ -2,6 +2,7 @@
 #include <iostream>
 #include <set>
 #include <cassert>
+#include <string>
 #include <vector>
 
 /*---------------*/
@@ -18,14 +19,6 @@ Node::Node(Info name) :
     node->_info   = name;
     node->_now_at = -1;
 }
-
-// Node::Node(Node& ref) :
-//     node(new _node())
-// {
-//     node->_info   = ref.node->_info;
-//     node->_to     = ref.node->_to;
-//     node->_now_at = ref.node->_now_at;
-// }
 
 Node::Node(const Node& ref) :
     node(new _node())
@@ -48,11 +41,6 @@ const Node& Node::operator=(const Node& rhs) const
     return *this;
 }
 
-// bool Node::operator==(Node& rhs)
-// {
-//     return node->_info == rhs.node->_info;
-// }
-
 bool Node::operator==(const Node& rhs) const
 {
     return node->_info == rhs.node->_info;
@@ -72,17 +60,12 @@ void Node::add(Node& dest)
 
 void Node::del(Node& dest)
 {
-    if ( isTo(dest) )
+    for (size_t i = 0; i < edgeSize(); i++, next())
     {
-        for (size_t i = 0; i < edgeSize(); i++, next())
+        if (to() == dest)
         {
-            if (to() == dest)
-            {
-                node->_to.erase( node->_to.begin() + node->_now_at );
-                node->_now_at = 0;
-                // node->_to.erase(node->_now_at);
-                // node->_now_at = node->_to.begin();
-            }
+            node->_to.erase( node->_to.begin() + node->_now_at );
+            node->_now_at = 0;
         }
     }
 }
@@ -101,11 +84,6 @@ bool Node::isTo(Node& node)
         if ( **it == node )
             return true;
     }
-    // for (size_t i = 0; i < edgeSize(); i++, next())
-    // {
-    //     if (to() == node)
-    //         return true;
-    // }
     return false;
 }
 
@@ -122,104 +100,22 @@ void Node::begin()
 
 Node& Node::to()
 {
+    // Node has no edge will to itself
     if (node->_to.size() == 0)
         return *this;
 
     if (node->_now_at >= node->_to.size())
         node->_now_at = 0;
-    // if (node->_now_at == node->_to.end())
-    //     node->_now_at = node->_to.begin();
 
-    // Node* n = *node->_now_at;
     return *node->_to.at(node->_now_at);
-    //return (*(*(node->_now_at)));
 }
 void Node::next()
 {
     if (++(node->_now_at) >= node->_to.size())
         node->_now_at = 0;
-    // if (++(node->_now_at) == node->_to.end() )
-    //     node->_now_at = node->_to.begin();
 }
 
-// Node::Node(c_label info) : info(info) {};
-
-// Node::Node(Node& node)
-// {
-//     this->info = node.get_info();
-// };
-
-// clone a new same node 
-// Node* Node::clone()
-// {
-//     return new Node(this->get_info());
-// };
-
-// Node& Node::operator=(Node& node)
-// {
-//     this->info = node.get_info();
-//     return *this;
-// }
-
-// get info about node
-// c_label Node::get_info() const
-// {
-//     return info.c_str();
-// }
-
 /*-------------*/
-
-// init Edge with basic c_label
-// Edge::Edge(c_label source, c_label dest) :
-//     info(""), source(new Node(source)),dest(new Node(dest)) {};
-
-// init Edge with other already allocated node
-// Edge::Edge(Node* source, Node* dest) :
-//     info(""), source(source), dest(dest) {};
-
-// Edge::Edge(Edge& e)
-// {
-//    edge = std::make_pair(e.get_src(), e.get_dst());
-// }
-
-
-// clone a new Edge
-// Edge* Edge::clone()
-// {
-//     return new Edge(source->get_info(), dest->get_info());
-// }
-
-// Node* Edge::get_src()
-// {
-//     return edge.first;
-// };
-//
-// Node* Edge::get_dst()
-// {
-//     return edge.second;
-// };
-
-// get info about Edge
-// c_label Edge::get_info()
-// {
-//     info = std::string(source->get_info()) +
-//         " -> " +
-//         std::string(dest->get_info());
-//     return info.c_str();
-// }
-
-// simplify get_node.get_info method
-// c_label Edge::get_src_info() const
-// {
-//     return source->get_info();
-// };
-
-// simplify get_node.get_info method
-// c_label Edge::get_dst_info() const
-// {
-//     return dest->get_info();
-// };
-
 
 // init:
 Edge::Edge(Node& ref) :
@@ -229,14 +125,6 @@ Edge::Edge(Node& ref) :
     edge->_destination = &ref.to();
     edge->_info = source().info() + "->" + dest().info() + "\n"; 
 }
-
-// Edge::Edge(Edge& e) :
-//     edge(new _edge())
-// {
-//     edge->_source = e.edge->_source;
-//     edge->_destination= e.edge->_destination;
-//     edge->_info = e.edge->_info;
-// }
 
 Edge::~Edge()
 {
@@ -303,13 +191,23 @@ void Edge::move()
 /*-------------*/
 
 // init:
-Graph::Graph()
+Graph::Graph() :
+    graph(new _graph())
 {
 }
 
-Graph::Graph(GraphTable gt)
+Graph::Graph(const Graph& ref) :
+    graph(new _graph())
 {
-    graph = new _graph();
+    graph->_info = ref.graph->_info;
+    graph->nodes = ref.graph->nodes;
+    graph->stk = ref.graph->stk;
+}
+
+Graph::Graph(GraphTable gt) :
+    graph(new _graph())
+{
+    // node dict
     std::set<std::string> tmp;
     for (GraphTable::iterator it = gt.begin();
             it != gt.end(); it++)
@@ -318,12 +216,14 @@ Graph::Graph(GraphTable gt)
         tmp.insert(it->second);
     }
 
+    // create node by dict
     for (std::set<std::string>::iterator it = tmp.begin();
             it != tmp.end(); it++) 
     {
         graph->nodes.push_back(new Node(*it));
     }
 
+    // add relation
     for (GraphTable::iterator it = gt.begin();
             it != gt.end(); it++)
     {
@@ -331,42 +231,40 @@ Graph::Graph(GraphTable gt)
         Node* tmp = find(n);
         if ( tmp != nullptr )
         {
-            Node* new_n = new Node(it->second);
+            Node nd = Node(it->second);
+            Node* new_n = find(nd);
             tmp->add(*new_n);
         }
     }
-
-    graph->travel_graph = new Graph();
-    // graph->edge = **graph->nodes.begin();
+    // Since gt has dynamic allocation
+    gt_alloc = true;
 }
 
 Graph::~Graph()
 {
+    if (gt_alloc)
+    {
+        for (std::vector<Node*>::iterator it = graph->nodes.begin();
+                it != graph->nodes.end(); it++)
+        {
+            delete(*it);
+        }
+    }
     delete(graph);
 }
 
-// info:
-// Node* Graph::find_sub(Node& source, Node& target)
-// {
-//     Edge e = Edge(source);
-//
-//     for (size_t i = 0;
-//             i < e.here().edgeSize();
-//             i++, e.next())
-//     {
-//         if (e.dest() == target) return &e.to();
-//     }
-//
-//     for (size_t i = 0;
-//             i < e.here().edgeSize();
-//             i++, e.next())
-//     {
-//         find_sub(e.to(), target);
-//     }
-//
-//     return nullptr;
-// }
+Graph& Graph::operator=(const Graph& rhs)
+{
+    graph->_info = rhs.graph->_info;
+    graph->nodes = rhs.graph->nodes;
+    graph->stk = rhs.graph->stk;
 
+    return *this;
+}
+
+// info:
+//
+// if no found return nullptr
 Node* Graph::find(Node& target)
 {
     for (std::vector<Node*>::iterator it = graph->nodes.begin();
@@ -374,11 +272,11 @@ Node* Graph::find(Node& target)
     {
         if (**it == target)
             return *it;
-        //return find_sub(**it, target);
     }
     return nullptr;
 }
 
+// if no found return nullptr
 Edge* Graph::find(Edge& edge)
 {
     Node* src = find(edge.here());
@@ -392,9 +290,9 @@ Edge* Graph::find(Edge& edge)
         {
             if (src->isTo(edge.to()))
             {
-                graph->edge = new Edge(*src);
-                return graph->edge;
-                //return &edge;
+                // static Edge for return reference
+                static Edge local_edge = Edge(*src);
+                return &local_edge;
             }
         }
     }
@@ -407,10 +305,22 @@ Info Graph::info()
     for (std::vector<Node*>::iterator it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
+        // set being for test
+        (**it).begin();
         Edge tmp = Edge(**it);
-        for (size_t i = 0; i < tmp.source().edgeSize(); i++, tmp.here().next())
+
+        // if no edge, then only return name and "\n"
+        if (tmp.source().edgeSize() == 0)
         {
-            graph->_info += tmp.info();
+            graph->_info += tmp.here().info() + "\n";
+        }
+        else
+        {
+            for (size_t i = 0; i < tmp.source().edgeSize(); i++)
+            {
+                graph->_info += tmp.info();
+                tmp.next();
+            }
         }
     }
     return graph->_info;
@@ -434,18 +344,9 @@ size_t Graph::edgeSize()
     return count;
 }
 
-// Node& Graph::nowAt()
-// {
-//     return graph->edge.here();
-// }
-//
-// Node& Graph::to()
-// {
-//     return graph->edge.to();
-// }
-
 void Graph::next()
 {
+    // next loop
     if (graph->stk.empty())
     {
         for (std::vector<Node*>::iterator it = graph->nodes.begin();
@@ -455,55 +356,64 @@ void Graph::next()
         }
     }
 
-    static Edge edge = Edge( *graph->stk.top() );
+    // local edge remain iteration state
+    static Edge local_edge = Edge( *graph->stk.top() );
     graph->stk.pop();
-    for (size_t i = 0;
-            i < edge.here().edgeSize();
-            i++, edge.next())
+    for (size_t i = 0; i < local_edge.here().edgeSize();
+            i++, local_edge.next())
     {
-        graph->stk.push( &edge.to() );
+        graph->stk.push( &local_edge.to() );
     }
 }
 
 // edit:
-bool Graph::add(Node& node)
+// add the node and subnode
+void Graph::add(Node& node)
 {
-    if ( find(node) != nullptr )
+    if ( find(node) == nullptr )
     {
         graph->nodes.push_back(&node);
-        return true;
     }
-    return false;
+    // **We take this action into account is according to
+    // our constructor by gt
+    // add subnode
+    for (size_t i = 0; i < node.edgeSize(); i++)
+    {
+        add(node.to());
+        node.next();
+    }
 }
 
-bool Graph::add(Edge& edge)
+// add only this edge
+void Graph::add(Edge& edge)
 {
     Node* tmp = find(edge.here());
     if (!tmp)
         add(edge.here());
     tmp = find(edge.here());
-    for (size_t i = 0; i < edge.here().edgeSize(); i++, edge.next())
-    {
-        tmp->add(edge.to());
-    }
-    return true;
+    tmp->add(edge.to());
+    add(edge.to());
 }
 
+// del node include subnode
 bool Graph::del(Node& node)
 {
+    bool status = false;
     for (std::vector<Node*>::iterator it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
+        if ( (*it)->isTo(node) )
+        {
+            (*it)->del(node);
+        }
+
         if (**it == node)
         {
-            Node* tmp = *it;
             graph->nodes.erase(it);
-            delete(tmp);
-            return true;
+            status = true;
         }
-        //return find_sub(**it, target);
     }
-    return false;
+    return status;
 }
 
 bool Graph::del(Edge& edge)
@@ -520,300 +430,106 @@ bool Graph::del(Edge& edge)
     return false;
 }
 
-bool Graph::breathFirstSearch(Node& node)
+// generate a clone of graph by BFS
+Graph& Graph::breathFirstSearch(Node& node)
 {
     static std::queue<Node*> que;
+    size_t edge_num = 0;
 
-    Node* tmp = find(node);
-    que.push(tmp);
+    // internal item
+    static Graph b_travel;
+    // turn on flag for auto relax memory
+    b_travel.gt_alloc = true;
 
-    while (!que.empty())
+
+    Node* o_start = find(node);
+    Node* new_node;
+    if (o_start != nullptr)
+        que.push(o_start);
+
+    while(!que.empty())
     {
-        Edge e = Edge( *que.front() );
-        for (size_t i = 0; i < tmp->edgeSize(); i++, e.next())
+        // front will be parent in this run
+        if ( b_travel.find(*que.front()) == nullptr )
         {
-            if ( graph->travel_graph->find(e.to()) == nullptr )
-            {
-                graph->travel_graph->add(e);
-                que.push(&e.to());
-            }
-
+            new_node = new Node(que.front()->info());
+            b_travel.add(*new_node);
         }
+
+        // add all edge which is not in graph
+        o_start = que.front();
+        edge_num = 0;
+        while (edge_num < o_start->edgeSize())
+        {
+            if ( b_travel.find(o_start->to()) == nullptr )
+            {
+                Node* parent = b_travel.find(*o_start);
+
+                new_node = new Node(o_start->to().info());
+                parent->add(*new_node);
+                b_travel.add(*new_node);
+
+                que.push( &o_start->to() );
+            }
+            edge_num++;
+            o_start->next();
+        }
+        que.pop();
+
     }
-    std::cout << graph->travel_graph->info();
-    return true;
+    return b_travel;
 }
 
-bool Graph::depthFirstSearch(Node& node)
+// generate a clone of grapn by DFS
+Graph& Graph::depthFirstSearch(Node& node)
 {
     static std::stack<Node*> stk;
+    size_t edge_num = 0;
 
-    Node* tmp = find(node);
-    stk.push(tmp);
+    // internal item
+    static Graph d_travel;
+    // turn on flag for auto relax memory
+    d_travel.gt_alloc = true;
 
-    while (!stk.empty())
+    Node* o_start = find(node);
+    Node* new_node;
+    if (o_start != nullptr)
+        stk.push(o_start);
+
+    while(!stk.empty())
     {
-        Edge e = Edge( *stk.top() );
-        for (size_t i = 0; i < tmp->edgeSize(); i++, e.next())
+        // top is parent
+        if ( d_travel.find(*stk.top()) == nullptr )
         {
-            if ( graph->travel_graph->find(e.to()) == nullptr )
-            {
-                graph->travel_graph->add(e);
-                stk.push(&e.to());
-            }
-
+            new_node = new Node(stk.top()->info());
+            d_travel.add(*new_node);
         }
+
+        // check child
+        // if not in graph, then push and reset edge_num for new parent
+        // if in graph, plus edge_num
+        o_start = stk.top();
+        if ( d_travel.find(o_start->to()) == nullptr )
+        {
+            Node* parent = d_travel.find(*o_start);
+
+            new_node = new Node(o_start->to().info());
+            parent->add(*new_node);
+            d_travel.add(*new_node);
+
+            stk.push( &o_start->to() );
+            edge_num = 0;
+        }
+        else
+            edge_num++;
+
+        o_start->next();
+
+        // no more child can be add to graph
+        if (edge_num >= o_start->edgeSize())
+            stk.pop();
+
     }
-    std::cout << graph->travel_graph->info();
-    return true;
+    return d_travel;
 }
 
-// Graph::Graph() :
-//     info(""), node_cache(), graph()
-// {
-// }
-//
-// // normally get Graph from here
-// Graph::Graph(GraphTable table) :
-//     info("")
-// {
-//     // travel table
-//     for (GraphTable::iterator it = table.begin();
-//             it != table.end(); it++)
-//     {
-//         add_edge(it->first.c_str(), it->second.c_str());
-//     }
-// }
-//
-// Graph::~Graph()
-// {
-//     for (GraphBody::iterator it = graph.begin();
-//             it != graph.end(); it++)
-//     {
-//         for (EdgeSet::iterator edge_it = it->second.begin();
-//                 edge_it != it->second.end(); edge_it++)
-//         {
-//             delete(*edge_it);
-//         }
-//         //delete(it->first);
-//     }
-// }
-//
-// // only get edge info, no node info
-// c_label Graph::get_info()
-// {
-//     info = "";
-//     // travel edge
-//     for (GraphBody::iterator it = graph.begin();
-//             it != graph.end(); it++)
-//     {
-//         for (EdgeSet::iterator edge_it = it->second.begin();
-//                 edge_it != it->second.end(); edge_it++)
-//         {
-//             info += (*edge_it)->get_info() + std::string("\n");
-//         }
-//     }
-//     return info.c_str();
-// }
-//
-// size_t Graph::size_node()
-// {
-//     return node_cache.size();
-// }
-//
-// size_t Graph::size_edge()
-// {
-//     size_t accum = 0;
-//     for (GraphBody::iterator it = graph.begin();
-//             it != graph.end(); it++)
-//     {
-//         accum += (*it).second.size();
-//     }
-//     return accum;
-// }
-//
-// Node* Graph::find_node(c_label name)
-// {
-//     NodeCache::iterator it = node_cache.find(name);
-//     if ( it == node_cache.end())
-//         return nullptr;
-//
-//     return it->second;
-// }
-//
-// Edge* Graph::find_edge(c_label source, c_label dest)
-// {
-//     NodeCache::iterator node_it = node_cache.find(source);
-//     // check source existence, since it is a index of edge
-//     if ( node_it == node_cache.end() )
-//         return nullptr;
-//
-//     // get EdgeSet
-//     GraphBody::iterator graph_it = graph.find( node_it->second );
-//
-//     // travel EdgeSet
-//     for ( EdgeSet::iterator edge_it = graph_it->second.begin();
-//             edge_it != graph_it->second.end();
-//             edge_it++)
-//     {
-//         if ( std::string((*edge_it)->get_dst_info()) == std::string(dest) )
-//             return *edge_it;
-//     }
-//
-//     return nullptr;
-// }
-//
-// Node* Graph::add_node(c_label name)
-// {
-//     // check node existence
-//     if ( find_node(name) == nullptr )
-//     {
-//         // give new node
-//         Node* temp = new Node(name);
-//         node_cache.insert( std::make_pair(name, temp) );
-//         graph.insert( std::make_pair(temp, EdgeSet()));
-//         return temp;
-//     }
-//     return nullptr;
-// }
-//
-// Edge* Graph::add_edge(c_label source, c_label dest)
-// {
-//     // edge imply two node exist
-//     // check those two node
-//     // or add them to graph
-//     Node* n_src = find_node(source);
-//     Node* n_dst = find_node(dest);
-//
-//     if (n_src == nullptr)
-//         n_src = add_node(source);
-//
-//     if (n_dst == nullptr)
-//         n_dst = add_node(dest);
-//
-//     // check edge existence
-//     if ( find_edge(source, dest) == nullptr )
-//     {
-//         Edge* temp = new Edge(source, dest);
-//         GraphBody::iterator it = graph.find(n_src);
-//         it->second.insert(temp);
-//         return temp;
-//     }
-//
-//     return nullptr;
-// }
-//
-// // not complete
-// Graph* Graph::breadth_firsh_search(c_label name)
-// {
-//     Node* tmp = find_node(name);
-//     if (tmp == nullptr)
-//         return nullptr;
-//
-//     Edge start_point = Edge(tmp, tmp);
-//     Graph *g = new Graph();
-//
-//     std::queue<Edge*> que;
-//     que.push(&start_point);
-//
-//     while( !que.empty() )
-//     {
-//         Node *n_tmp;
-//         Edge *e_tmp = que.front();
-//         GraphBody::iterator it;
-//         c_label new_src_node = e_tmp->get_dst_info();
-//
-//         if ( g->find_node( new_src_node ) == nullptr)
-//         {
-//             if (e_tmp->get_dst_info() != start_point.get_src_info())
-//                 g->add_edge(e_tmp->get_src_info(), e_tmp->get_dst_info());
-//
-//             que.pop();
-//
-//             n_tmp = find_node( new_src_node );
-//             assert(n_tmp != nullptr);
-//             it = graph.find( n_tmp );
-//
-//             for (EdgeSet::iterator edge_it = it->second.begin();
-//                     edge_it != it->second.end(); edge_it++)
-//             {
-//                 c_label new_dest_node = (*edge_it)->get_dst_info();
-//                 if ( g->find_node( new_dest_node ) == nullptr )
-//                     que.push( *edge_it );
-//             }
-//         }
-//         else
-//         {
-//             que.pop();
-//         }
-//     }
-//
-//     return g;
-// }
-//
-// Graph* Graph::depth_firsh_search(c_label name)
-// {
-//     Node* tmp = find_node(name);
-//     if (tmp == nullptr)
-//         return nullptr;
-//
-//     Edge start_point = Edge(tmp, tmp);
-//     Graph *g = new Graph();
-//
-//     std::stack<Edge*> stk;
-//     stk.push(&start_point);
-//
-//     while( !stk.empty() )
-//     {
-//         Node *n_tmp;
-//         Edge *e_tmp = stk.top();
-//         GraphBody::iterator it;
-//         c_label new_src_node = e_tmp->get_dst_info();
-//
-//         if ( g->find_node( new_src_node ) == nullptr)
-//         {
-//             if (e_tmp->get_dst_info() != start_point.get_src_info())
-//                 g->add_edge(e_tmp->get_src_info(), e_tmp->get_dst_info());
-//
-//             stk.pop();
-//
-//             n_tmp = find_node( new_src_node );
-//             assert(n_tmp != nullptr);
-//             it = graph.find( n_tmp );
-//
-//             for (EdgeSet::iterator edge_it = it->second.begin();
-//                     edge_it != it->second.end(); edge_it++)
-//             {
-//                 c_label new_dest_node = (*edge_it)->get_dst_info();
-//                 if ( g->find_node( new_dest_node ) == nullptr )
-//                     stk.push( *edge_it );
-//             }
-//         }
-//         else
-//         {
-//             stk.pop();
-//         }
-//     }
-//
-//
-//     return g;
-// }
-//
-
-/*--------------------*/
-
-// Graph_test::Graph_test():
-//     gt( { {"1", "2"}, {"1", "3"}, {"2", "4"},
-//           {"2", "6"}, {"3", "4"}, {"3", "5"},
-//           {"4", "6"}, {"5", "1"}, {"6", "5"}} ),
-//     g(gt)
-// {
-//     std::cout << g.get_info() << std::endl;
-//
-//     Graph *bfs = g.breadth_firsh_search("2");
-//     std::cout << bfs->get_info() << std::endl;
-//     delete(bfs);
-//     bfs = g.depth_firsh_search("2");
-//     std::cout << bfs->get_info() << std::endl;
-//     delete(bfs);
-// };

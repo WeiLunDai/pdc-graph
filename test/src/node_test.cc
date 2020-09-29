@@ -1,6 +1,5 @@
 #include "node_test.h"
 #include "graph.h"
-#include <string>
 
 void NodeTest::SetUp()
 {

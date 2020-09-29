@@ -1,5 +1,4 @@
 
-#include <gtest/gtest.h>
 #include "graph_test_suite.h"
 // add new test suite on the above
 // this is entry point for test
