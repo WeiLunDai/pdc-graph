@@ -1,5 +1,7 @@
-# tags
+# other
+builddir
 tags
+
 # Prerequisites
 *.d
 
