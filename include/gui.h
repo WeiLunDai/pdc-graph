@@ -3,6 +3,9 @@
 
 #include <gtkmm.h>
 #include <cairo.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/hvbox.h>
+#include <gtkmm/hvpaned.h>
 
 class TreeArea : public Gtk::DrawingArea
 {
@@ -39,14 +42,18 @@ public:
     ~HelloGraph();
 
 protected:
-        void on_button_clicked();
+    void on_button_clicked();
 
     Gtk::Box    m_box_top;
-    Gtk::Box    m_Hbox;
     Gtk::Box    m_Vbox;
     TreeArea    treeArea;
     Gtk::Button insert_button;
     Gtk::Button delete_button;
+    Gtk::Paned m_pan;
+    Gtk::HBox m_box_insert;
+    Gtk::HBox m_box_delete;
+    Gtk::Entry m_entry_insert;
+    Gtk::Entry m_entry_delete;
 
 };
 

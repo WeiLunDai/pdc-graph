@@ -1,9 +1,7 @@
 #include "gui.h"
-#include "gdkmm/general.h"
-#include "gdkmm/pixbuf.h"
-#include "glibmm/refptr.h"
-#include <glib.h>
 #include <gdkmm.h>
+#include <glibmm.h>
+#include <glib.h>
 #include <iostream>
 #include <cmath>
 
@@ -13,16 +11,19 @@ HelloGraph::HelloGraph() :
     height(400),
     border_width(10),
     m_box_top(Gtk::ORIENTATION_HORIZONTAL, 0),
-    m_Hbox(Gtk::ORIENTATION_HORIZONTAL, 5),
     m_Vbox(Gtk::ORIENTATION_VERTICAL),
     insert_button("Insert item"),
-    delete_button("Delete item")
+    delete_button("Delete item"),
+    m_pan(Gtk::ORIENTATION_HORIZONTAL)
 {
     // init 
     set_title(title);
     set_default_size(width, height); 
     set_border_width(border_width);
-        
+
+    m_entry_insert.set_text("name to insert");
+    m_entry_delete.set_text("name to delete");
+
     // connect function
     insert_button.signal_clicked().connect(sigc::mem_fun(*this,
                 &HelloGraph::on_button_clicked));
@@ -30,13 +31,20 @@ HelloGraph::HelloGraph() :
                 &HelloGraph::on_button_clicked));
 
     // add layout
-    add(treeArea);
+    add(m_pan);
+    m_pan.add1(m_Vbox);
+    m_pan.add2(treeArea);
+    //add(treeArea);
     //add(m_box_top);
-    m_box_top.pack_start(m_Hbox);
-    m_box_top.pack_start(m_Vbox);
+    // m_box_top.pack_start(m_Hbox);
+    // m_box_top.pack_start(m_Vbox);
+    m_Vbox.pack_start(m_box_insert);
+    m_Vbox.pack_start(m_box_delete);
 
-    m_Hbox.pack_start(insert_button);
-    m_Hbox.pack_start(delete_button);
+    m_box_insert.pack_start(m_entry_insert);
+    m_box_insert.pack_end(insert_button);
+    m_box_delete.pack_start(m_entry_delete);
+    m_box_delete.pack_end(delete_button);
 
     // m_Vbox.pack_start(treeArea);
 
@@ -51,7 +59,7 @@ HelloGraph::~HelloGraph()
 
 void HelloGraph::on_button_clicked() 
 {
-    std::cout << "Hello Graph" << std::endl;
+    std::cout << "nn" << std::endl;
 }
 
 /*----------------------------------*/
