@@ -1,15 +1,19 @@
 # use the official gcc image, based on debian
 # can use verions as well, like gcc:5.2
 # see https://hub.docker.com/_/gcc/
-image: gcc
-
-build:
-  stage: build
-  # instead of calling g++ directly you can also use some build toolkit like make
-  # install the necessary build tools when needed
+default:
+  image: gcc
   before_script:
       - apt update
       - apt -y install meson libgtkmm-3.0-dev graphviz ninja-build libcgraph6
+
+build:
+  # stage: build
+  # instead of calling g++ directly you can also use some build toolkit like make
+  # install the necessary build tools when needed
+  # before_script:
+  #     - apt update
+  #     - apt -y install meson libgtkmm-3.0-dev graphviz ninja-build libcgraph6
   #   - apt update && apt -y install make autoconf
   script:
     - meson builddir && cd ./builddir
@@ -24,6 +28,6 @@ build:
 
 # run tests using the binary built before
 test:
-  stage: test
+  # stage: test
   script:
     - ninja test

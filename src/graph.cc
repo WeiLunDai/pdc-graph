@@ -1,4 +1,5 @@
 #include "graph.h"
+#include <cstdio>
 #include <cstring>
 #include <set>
 #include <cassert>
@@ -579,7 +580,14 @@ void Graph::exportPng(char* filename)
 
     strncpy(tmp, (std::string(filename) + ".png").c_str(), 256);
     FILE *fp_png = fopen(tmp, "w");
-    gvRender(gvc, G, "png", fp_png);
+    //gvRender(gvc, G, "png", fp_png);
+    char *result = new char[256];
+    unsigned int length;
+    gvRenderData(gvc, G, "png", &result, &length);
+
+    fwrite(result, length, 1, fp_png);
+
+    delete[](result);
 
     gvFreeLayout(gvc, G);
     agclose(G);
