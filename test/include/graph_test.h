@@ -21,6 +21,8 @@ protected:
     std::string runDFS();
     std::string runBFS();
 
+    bool exportGraph();
+
     void TearDown() override;
 };
 

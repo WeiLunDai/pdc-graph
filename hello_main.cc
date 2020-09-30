@@ -1,4 +1,4 @@
-#include "gui_tree.h"
+#include "gui.h"
 #include "graph.h"
 #include <gtkmm-3.0/gtkmm.h>
 

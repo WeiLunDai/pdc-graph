@@ -169,6 +169,19 @@ std::string GraphTest::runBFS()
     return tmp.info();
 }
 
+bool GraphTest::exportGraph()
+{
+    Graph::GraphTable gt {
+        {"1", "2"}, {"1", "3"}, {"2", "4"},
+        {"2", "6"}, {"3", "4"}, {"3", "5"},
+        {"4", "6"}, {"5", "1"}, {"6", "5"} } ;
+
+    char title[] = "title";
+    Graph g(gt);
+    g.exportPng(title);
+    return true;
+}
+
 void GraphTest::TearDown()
 {
 }

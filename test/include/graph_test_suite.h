@@ -4,6 +4,7 @@
 #include "node_test.h"
 #include "edge_test.h"
 #include "graph_test.h"
+#include <gtest/gtest.h>
 
 TEST_F(NodeTest, self)
 {
@@ -49,6 +50,7 @@ TEST_F(GraphTest, func)
     EXPECT_EQ(del_edge(), "main->100\nmain->101\nmain->103\nmain->104\n100\n101\n102\n103\n104\n");
     EXPECT_EQ(runDFS(), "3->4\n4->6\n6->5\n5->1\n1->2\n2\n");
     EXPECT_EQ(runBFS(), "3->4\n3->5\n4->6\n5->1\n6\n1->2\n2\n");
+    EXPECT_TRUE(exportGraph());
 }
 
 #endif

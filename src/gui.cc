@@ -1,5 +1,9 @@
-#include "gui_tree.h"
-#include <gtkmm/widget.h>
+#include "gui.h"
+#include "gdkmm/general.h"
+#include "gdkmm/pixbuf.h"
+#include "glibmm/refptr.h"
+#include <glib.h>
+#include <gdkmm.h>
 #include <iostream>
 #include <cmath>
 
@@ -73,15 +77,27 @@ inline int TreeArea::height() const
 
 bool TreeArea::on_draw(CairoRef cr)
 {
-    // get region size
-    int width = this->width();
-    int height = this->height();
+    Glib::RefPtr<Gdk::Pixbuf> image = Gdk::Pixbuf::create_from_file("./title.png");
 
-    draw_node(cr, width/3, height/3, "123");
-    draw_node(cr, width/3 * 2, height/3 * 2, "234");
+    Gdk::Cairo::set_source_pixbuf(cr, image, (width() - image->get_width())/2, (height() - image->get_height())/2);
+    //cr->rectangle(10, 10, image->get_width() + 20, image->get_height() + 20);
+    //cr->fill();
+    cr->paint();
 
     return true;
-};
+}
+
+// bool TreeArea::on_draw(CairoRef cr)
+// {
+//     // get region size
+//     int width = this->width();
+//     int height = this->height();
+//
+//     draw_node(cr, width/3, height/3, "123");
+//     draw_node(cr, width/3 * 2, height/3 * 2, "234");
+//
+//     return true;
+// };
 
 bool TreeArea::draw_node(CairoRef cr, int x, int y, const char *label) 
 {

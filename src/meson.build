@@ -1,6 +1,6 @@
 
 # source for graphDlib
-src_source = ['gui_tree.cc', 'graph.cc']
+src_source = ['gui.cc', 'graph.cc']
 
 # generate shared library
 graphDlib = shared_library('graphDisplay',

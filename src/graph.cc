@@ -1,8 +1,11 @@
 #include "graph.h"
+#include <cstring>
 #include <set>
 #include <cassert>
 #include <vector>
 #include <queue>
+#include <graphviz/cgraph.h>
+#include <graphviz/gvc.h>
 
 /*---------------*/
 
@@ -530,5 +533,56 @@ Graph& Graph::depthFirstSearch(Node& node)
 
     }
     return d_travel;
+}
+
+void Graph::exportPng(char* filename)
+{
+    GVC_t *gvc;
+    Agraph_t *G;
+    char tmp[256];
+
+    gvc = gvContext();
+
+    G = agopen(filename, Agdirected, 0);
+
+    size_t count = 0;
+    for (nodeRef it = graph->nodes.begin();
+            it != graph->nodes.end() && count < graph->nodes.size();
+            it++, count++)
+    {
+        strncpy(tmp, (*it)->info().c_str(), 256);
+        agnode(G, tmp, true);
+    }
+
+    count = 0;
+    for (nodeRef it = graph->nodes.begin();
+            it != graph->nodes.end() && count < graph->nodes.size();
+            it++, count++)
+    {
+
+        // loop for edge to 
+
+        Agnode_t *n1, *n2;
+        strncpy(tmp, (*it)->info().c_str(), 256);
+        n1 = agnode(G, tmp, false);
+
+        for (size_t i = 0; i < (*it)->edgeSize(); i++)
+        {
+            strncpy(tmp, (*it)->to().info().c_str(), 256);
+            n2 = agnode(G, tmp, false);
+            agedge(G, n1, n2, 0, true);
+            (*it)->next();
+        }
+    }
+
+    gvLayout(gvc, G, "dot");
+
+    strncpy(tmp, (std::string(filename) + ".png").c_str(), 256);
+    FILE *fp_png = fopen(tmp, "w");
+    gvRender(gvc, G, "png", fp_png);
+
+    gvFreeLayout(gvc, G);
+    agclose(G);
+    gvFreeContext(gvc);
 }
 

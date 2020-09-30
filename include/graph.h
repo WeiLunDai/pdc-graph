@@ -1,5 +1,5 @@
-#ifndef __NODE_H__
-#define __NODE_H__
+#ifndef __GRAPH_H__
+#define __GRAPH_H__
 
 #include <string>
 #include <stack>
@@ -156,6 +156,7 @@ class Graph {
 private:
     _graph* graph;
     bool gt_alloc = false;
+    typedef std::vector<Node*>::iterator nodeRef;
 
 public:
     typedef std::multimap< std::string, std::string > GraphTable;
@@ -187,6 +188,8 @@ public:
     // travel:
     Graph& breathFirstSearch(Node& node);
     Graph& depthFirstSearch(Node& node);
+
+    void exportPng(char* filename);
 };
 
 #endif

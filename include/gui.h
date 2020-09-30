@@ -1,9 +1,8 @@
-#ifndef GTKMM_EXAMPLE_HELLOWORLD_H
-#define GTKMM_EXAMPLE_HELLOWORLD_H
+#ifndef GTKMM_GUI_H
+#define GTKMM_GUI_H
 
-#include <cairomm/refptr.h>
-#include <gtkmm-3.0/gtkmm.h>
-#include <cairomm-1.0/cairomm/context.h>
+#include <gtkmm.h>
+#include <cairo.h>
 
 class TreeArea : public Gtk::DrawingArea
 {
