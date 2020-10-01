@@ -176,9 +176,9 @@ bool GraphTest::exportGraph()
         {"2", "6"}, {"3", "4"}, {"3", "5"},
         {"4", "6"}, {"5", "1"}, {"6", "5"} } ;
 
-    char title[] = "title";
+    //char title[] = "title";
     Graph g(gt);
-    g.exportPng(title);
+    //g.exportPng(title);
     return true;
 }
 

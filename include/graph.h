@@ -1,7 +1,8 @@
 #ifndef __GRAPH_H__
 #define __GRAPH_H__
 
-#include <string>
+#include <fstream>
+#include <cstring>
 #include <stack>
 #include <map>
 #include <vector>
@@ -189,7 +190,7 @@ public:
     Graph& breathFirstSearch(Node& node);
     Graph& depthFirstSearch(Node& node);
 
-    void exportPng(char* filename);
+    void exportPngByte(char* buf, size_t* size);
 };
 
 #endif

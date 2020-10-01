@@ -1,8 +1,8 @@
 #include "graph.h"
-#include <cstdio>
 #include <cstring>
 #include <set>
 #include <cassert>
+#include <sstream>
 #include <vector>
 #include <queue>
 #include <graphviz/cgraph.h>
@@ -536,22 +536,24 @@ Graph& Graph::depthFirstSearch(Node& node)
     return d_travel;
 }
 
-void Graph::exportPng(char* filename)
+void Graph::exportPngByte(char* buf, size_t* size)
 {
     GVC_t *gvc;
     Agraph_t *G;
-    char tmp[256];
+    int tmp_size = 256;
+    char tmp[tmp_size];
 
     gvc = gvContext();
 
-    G = agopen(filename, Agdirected, 0);
+    strncpy(tmp, "title", tmp_size);
+    G = agopen(tmp, Agdirected, 0);
 
     size_t count = 0;
     for (nodeRef it = graph->nodes.begin();
             it != graph->nodes.end() && count < graph->nodes.size();
             it++, count++)
     {
-        strncpy(tmp, (*it)->info().c_str(), 256);
+        strncpy(tmp, (*it)->info().c_str(), tmp_size);
         agnode(G, tmp, true);
     }
 
@@ -564,12 +566,12 @@ void Graph::exportPng(char* filename)
         // loop for edge to 
 
         Agnode_t *n1, *n2;
-        strncpy(tmp, (*it)->info().c_str(), 256);
+        strncpy(tmp, (*it)->info().c_str(), tmp_size);
         n1 = agnode(G, tmp, false);
 
         for (size_t i = 0; i < (*it)->edgeSize(); i++)
         {
-            strncpy(tmp, (*it)->to().info().c_str(), 256);
+            strncpy(tmp, (*it)->to().info().c_str(), tmp_size);
             n2 = agnode(G, tmp, false);
             agedge(G, n1, n2, 0, true);
             (*it)->next();
@@ -578,17 +580,18 @@ void Graph::exportPng(char* filename)
 
     gvLayout(gvc, G, "dot");
 
-    strncpy(tmp, (std::string(filename) + ".png").c_str(), 256);
+    //strncpy(tmp, (std::string(filename) + ".png").c_str(), 256);
     FILE *fp_png = fopen(tmp, "w");
     //gvRender(gvc, G, "png", fp_png);
-    char *result = new char[256];
+    char* result = tmp;
     unsigned int length;
     gvRenderData(gvc, G, "png", &result, &length);
 
     fwrite(result, length, 1, fp_png);
 
-    delete[](result);
-
+    memcpy(buf, result, length);
+    *size = length;
+    
     gvFreeLayout(gvc, G);
     agclose(G);
     gvFreeContext(gvc);
