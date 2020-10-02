@@ -9,7 +9,7 @@ meson:
   # install the necessary build tools when needed
   before_script:
       - apt update
-      - apt -y install meson libgtkmm-3.0-dev libgraphviz-dev libgest-dev
+      - apt -y install meson libgtkmm-3.0-dev libgraphviz-dev libgtest-dev
   #   - apt update && apt -y install make autoconf
   script:
     - meson builddir 
@@ -23,7 +23,7 @@ cmake:
   # install the necessary build tools when needed
   before_script:
       - apt update
-      - apt -y install meson libgtkmm-3.0-dev libgraphviz-dev libgest-dev
+      - apt -y install meson libgtkmm-3.0-dev libgraphviz-dev libgtest-dev
   #   - apt update && apt -y install make autoconf
   script:
     - mkdir build
