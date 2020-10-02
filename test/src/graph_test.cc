@@ -20,7 +20,8 @@ std::string GraphTest::find_edge()
     Node n = Node("main");
     Node n2 = Node("N2");
     n.add(n2);
-    g.add(n);
+    Edge e = Edge(n);
+    g.add(e);
 
     return g.info();
 }

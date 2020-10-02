@@ -7,7 +7,7 @@ project('c++ graph display by gtkmm ', 'cpp',
 add_global_arguments('-DSOME_TOKEN=value', language : 'cpp')
 
 # project main dependencies
-lib_dep = [dependency('gtkmm-3.0'), dependency('cairomm-1.0'),  dependency('libgvc')]
+lib_dep = [dependency('gtkmm-3.0'), dependency('libgvc')]
 
 # include directory
 inc = include_directories('include')
