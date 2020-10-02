@@ -22,7 +22,7 @@ private:
     inline int width() const;
     inline int height() const;
 
-    Graph& g;
+    Graph& graph;
 
 public:
     typedef const Cairo::RefPtr<Cairo::Context>& CairoRef;
@@ -46,13 +46,19 @@ private:
 
 public:
     ActivityArea(HelloGraph& hg);
+    std::string get_node_text();
+    std::string get_src_text();
+    std::string get_dest_text();
 
 protected:
-    Gtk::Button insert_button;
-    Gtk::Button delete_button;
+    Gtk::Button m_but_add_node;
+    Gtk::Button m_but_del_node;
+    Gtk::Button m_but_add_edge;
+    Gtk::Button m_but_del_edge;
 
-    Gtk::Entry m_entry_insert;
-    Gtk::Entry m_entry_delete;
+    Gtk::Entry m_entry_node;
+    Gtk::Entry m_entry_src;
+    Gtk::Entry m_entry_dest;
 
 
 };
@@ -60,7 +66,7 @@ protected:
 class HelloGraph : public Gtk::Window
 {
 private:
-    Graph g;
+    Graph graph;
 
 public:
     HelloGraph();
@@ -68,11 +74,11 @@ public:
 
     void add_node();
     void del_node();
+    void add_edge();
+    void del_edge();
 
 protected:
     void on_button_clicked();
-
-    // Gtk::Box    m_box_top;
 
     Gtk::Paned m_pan;
 

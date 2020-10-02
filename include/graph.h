@@ -157,7 +157,7 @@ class Graph {
 private:
     _graph* graph;
     bool gt_alloc = false;
-    typedef std::vector<Node*>::iterator nodeRef;
+    typedef std::vector<Node*>::iterator NodeRefIt;
 
 public:
     typedef std::multimap< std::string, std::string > GraphTable;
@@ -190,7 +190,7 @@ public:
     Graph& breathFirstSearch(Node& node);
     Graph& depthFirstSearch(Node& node);
 
-    void exportPngByte(char* buf, size_t* size);
+    void exportPngByte();
 };
 
 #endif

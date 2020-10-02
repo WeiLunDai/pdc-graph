@@ -1,5 +1,7 @@
 #include "graph.h"
+#include <cstdio>
 #include <cstring>
+#include <iostream>
 #include <set>
 #include <cassert>
 #include <sstream>
@@ -19,14 +21,14 @@ Node::Node() :
 Node::Node(Info name) :
     node(new _node())
 {
-    node->_info   = name;
-    node->_now_at = -1;
+    node->_info.assign(name);
+    node->_now_at = 0;
 }
 
 Node::Node(const Node& ref) :
     node(new _node())
 {
-    node->_info   = ref.node->_info;
+    node->_info.assign(ref.node->_info);
     node->_to     = ref.node->_to;
     node->_now_at = ref.node->_now_at;
 }
@@ -38,7 +40,8 @@ Node::~Node()
 
 const Node& Node::operator=(const Node& rhs) const
 {
-    node->_info   = rhs.node->_info;
+    node->_info.assign(rhs.node->_info);
+
     node->_to     = rhs.node->_to;
     node->_now_at = rhs.node->_now_at;
     return *this;
@@ -63,6 +66,7 @@ void Node::add(Node& dest)
 
 void Node::del(Node& dest)
 {
+    begin();
     for (size_t i = 0; i < edgeSize(); i++, next())
     {
         if (to() == dest)
@@ -240,19 +244,17 @@ Graph::Graph(GraphTable gt) :
         }
     }
     // Since gt has dynamic allocation
-    gt_alloc = true;
 }
 
 Graph::~Graph()
 {
-    if (gt_alloc)
-    {
-        for (std::vector<Node*>::iterator it = graph->nodes.begin();
-                it != graph->nodes.end(); it++)
-        {
-            delete(*it);
-        }
-    }
+    // TODO
+    // !!RECHECK MEMORY LEAKAGE!!
+    // for (NodeRefIt it = graph->nodes.begin();
+    //         it != graph->nodes.end(); it++)
+    // {
+    //     delete(*it);
+    // }
     delete(graph);
 }
 
@@ -270,7 +272,7 @@ Graph& Graph::operator=(const Graph& rhs)
 // if no found return nullptr
 Node* Graph::find(Node& target)
 {
-    for (std::vector<Node*>::iterator it = graph->nodes.begin();
+    for (NodeRefIt it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
         if (**it == target)
@@ -305,7 +307,7 @@ Edge* Graph::find(Edge& edge)
 Info Graph::info()
 {
     graph->_info = "";
-    for (std::vector<Node*>::iterator it = graph->nodes.begin();
+    for (NodeRefIt it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
         // set being for test
@@ -338,7 +340,7 @@ size_t Graph::edgeSize()
 {
     size_t count = 0;
 
-    for (std::vector<Node*>::iterator it = graph->nodes.begin();
+    for (NodeRefIt it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
         count += (*it)->edgeSize();
@@ -352,7 +354,7 @@ void Graph::next()
     // next loop
     if (graph->stk.empty())
     {
-        for (std::vector<Node*>::iterator it = graph->nodes.begin();
+        for (NodeRefIt it = graph->nodes.begin();
                 it != graph->nodes.end(); it++)
         {
             graph->stk.push(*it);
@@ -373,9 +375,11 @@ void Graph::next()
 // add the node and subnode
 void Graph::add(Node& node)
 {
+    Node *tmp;
     if ( find(node) == nullptr )
     {
-        graph->nodes.push_back(&node);
+        tmp = new Node(node.info());
+        graph->nodes.push_back(tmp);
     }
     // **We take this action into account is according to
     // our constructor by gt
@@ -390,39 +394,55 @@ void Graph::add(Node& node)
 // add only this edge
 void Graph::add(Edge& edge)
 {
-    Node* tmp = find(edge.here());
-    if (!tmp)
+    Node* src_tmp = find(edge.here());
+    Node* dest_tmp = find(edge.to());
+    if (!src_tmp)
         add(edge.here());
-    tmp = find(edge.here());
-    tmp->add(edge.to());
-    add(edge.to());
+
+    if (!dest_tmp)
+        add(edge.to());
+
+    src_tmp = find(edge.here());
+    dest_tmp = find(edge.to());
+    src_tmp->add(*dest_tmp);
 }
 
 // del node include subnode
 bool Graph::del(Node& node)
 {
     bool status = false;
-    for (std::vector<Node*>::iterator it = graph->nodes.begin();
+    for (NodeRefIt it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
         if ( (*it)->isTo(node) )
         {
             (*it)->del(node);
         }
+    }
 
+    NodeRefIt tmp;
+    for (NodeRefIt it = graph->nodes.begin();
+            it != graph->nodes.end(); it++)
+    {
         if (**it == node)
         {
-            graph->nodes.erase(it);
+            tmp = it;
             status = true;
         }
     }
+    if (status)
+        graph->nodes.erase(tmp);
+
     return status;
 }
 
 bool Graph::del(Edge& edge)
 {
     Node* tmp = find(edge.here());
-    for (size_t i = 1; i < edge.here().edgeSize(); i++, edge.next())
+    if (tmp == nullptr)
+        return false;
+
+    for (size_t i = 0; i < tmp->edgeSize(); i++, tmp->next())
     {
         if ( tmp->isTo(edge.to()) )
         {
@@ -536,7 +556,7 @@ Graph& Graph::depthFirstSearch(Node& node)
     return d_travel;
 }
 
-void Graph::exportPngByte(char* buf, size_t* size)
+void Graph::exportPngByte()
 {
     GVC_t *gvc;
     Agraph_t *G;
@@ -548,19 +568,15 @@ void Graph::exportPngByte(char* buf, size_t* size)
     strncpy(tmp, "title", tmp_size);
     G = agopen(tmp, Agdirected, 0);
 
-    size_t count = 0;
-    for (nodeRef it = graph->nodes.begin();
-            it != graph->nodes.end() && count < graph->nodes.size();
-            it++, count++)
+    for (NodeRefIt it = graph->nodes.begin();
+            it != graph->nodes.end(); it++)
     {
         strncpy(tmp, (*it)->info().c_str(), tmp_size);
         agnode(G, tmp, true);
     }
 
-    count = 0;
-    for (nodeRef it = graph->nodes.begin();
-            it != graph->nodes.end() && count < graph->nodes.size();
-            it++, count++)
+    for (NodeRefIt it = graph->nodes.begin();
+            it != graph->nodes.end(); it++)
     {
 
         // loop for edge to 
@@ -580,7 +596,7 @@ void Graph::exportPngByte(char* buf, size_t* size)
 
     gvLayout(gvc, G, "dot");
 
-    //strncpy(tmp, (std::string(filename) + ".png").c_str(), 256);
+    strncpy(tmp, "title.png", 256);
     FILE *fp_png = fopen(tmp, "w");
     //gvRender(gvc, G, "png", fp_png);
     char* result = tmp;
@@ -589,8 +605,10 @@ void Graph::exportPngByte(char* buf, size_t* size)
 
     fwrite(result, length, 1, fp_png);
 
-    memcpy(buf, result, length);
-    *size = length;
+    fclose(fp_png);
+
+    // memcpy(buf, result, length);
+    // *size = length;
     
     gvFreeLayout(gvc, G);
     agclose(G);
