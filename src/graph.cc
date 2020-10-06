@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <set>
 #include <cassert>
 #include <sstream>
@@ -16,6 +17,7 @@ Node::Node() :
     node(new _node())
 {
     node->_info = "";
+    node->_now_at = 0;
 }
 
 Node::Node(Info name) :
@@ -29,7 +31,7 @@ Node::Node(const Node& ref) :
     node(new _node())
 {
     node->_info.assign(ref.node->_info);
-    node->_to     = ref.node->_to;
+    node->_to.assign(ref.node->_to.begin(), ref.node->_to.end());
     node->_now_at = ref.node->_now_at;
 }
 
@@ -41,8 +43,8 @@ Node::~Node()
 const Node& Node::operator=(const Node& rhs) const
 {
     node->_info.assign(rhs.node->_info);
+    node->_to.assign(rhs.node->_to.begin(), rhs.node->_to.end());
 
-    node->_to     = rhs.node->_to;
     node->_now_at = rhs.node->_now_at;
     return *this;
 }
@@ -61,7 +63,10 @@ bool Node::operator!=(Node& rhs)
 void Node::add(Node& dest)
 {
     if ( !isTo(dest) )
-        node->_to.push_back(&dest);
+    {
+        node->_to.push_back(
+                std::shared_ptr<Node>(new Node(dest.info())));
+    }
 }
 
 void Node::del(Node& dest)
@@ -83,12 +88,12 @@ Info Node::info() const
     return node->_info;
 }
 
-bool Node::isTo(Node& node)
+bool Node::isTo(Node& target)
 {
-    for (std::vector<Node*>::iterator it = this->node->_to.begin();
-            it != this->node->_to.end(); it++)
+    for (auto it = node->_to.begin();
+            it != node->_to.end(); it++)
     {
-        if ( **it == node )
+        if ( **it == target )
             return true;
     }
     return false;
@@ -216,7 +221,7 @@ Graph::Graph(GraphTable gt) :
 {
     // node dict
     std::set<std::string> tmp;
-    for (GraphTable::iterator it = gt.begin();
+    for (auto it = gt.begin();
             it != gt.end(); it++)
     {
         tmp.insert(it->first);
@@ -224,14 +229,14 @@ Graph::Graph(GraphTable gt) :
     }
 
     // create node by dict
-    for (std::set<std::string>::iterator it = tmp.begin();
+    for (auto it = tmp.begin();
             it != tmp.end(); it++) 
     {
         graph->nodes.push_back(new Node(*it));
     }
 
     // add relation
-    for (GraphTable::iterator it = gt.begin();
+    for (auto it = gt.begin();
             it != gt.end(); it++)
     {
         Node n = Node(it->first);
@@ -260,9 +265,9 @@ Graph::~Graph()
 
 Graph& Graph::operator=(const Graph& rhs)
 {
-    graph->_info = rhs.graph->_info;
-    graph->nodes = rhs.graph->nodes;
-    graph->stk = rhs.graph->stk;
+    graph->_info.assign(rhs.graph->_info);
+    graph->nodes.assign(rhs.graph->nodes.begin(), rhs.graph->nodes.end());
+    //graph->stk = rhs.graph->stk;
 
     return *this;
 }
@@ -272,7 +277,7 @@ Graph& Graph::operator=(const Graph& rhs)
 // if no found return nullptr
 Node* Graph::find(Node& target)
 {
-    for (NodeRefIt it = graph->nodes.begin();
+    for (auto it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
         if (**it == target)
@@ -307,7 +312,7 @@ Edge* Graph::find(Edge& edge)
 Info Graph::info()
 {
     graph->_info = "";
-    for (NodeRefIt it = graph->nodes.begin();
+    for (auto it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
         // set being for test
@@ -354,7 +359,7 @@ void Graph::next()
     // next loop
     if (graph->stk.empty())
     {
-        for (NodeRefIt it = graph->nodes.begin();
+        for (auto it = graph->nodes.begin();
                 it != graph->nodes.end(); it++)
         {
             graph->stk.push(*it);
@@ -411,7 +416,7 @@ void Graph::add(Edge& edge)
 bool Graph::del(Node& node)
 {
     bool status = false;
-    for (NodeRefIt it = graph->nodes.begin();
+    for (auto it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
         if ( (*it)->isTo(node) )
@@ -421,7 +426,7 @@ bool Graph::del(Node& node)
     }
 
     NodeRefIt tmp;
-    for (NodeRefIt it = graph->nodes.begin();
+    for (auto it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
         if (**it == node)
@@ -568,14 +573,14 @@ void Graph::exportPngByte()
     strncpy(tmp, "title", tmp_size);
     G = agopen(tmp, Agdirected, 0);
 
-    for (NodeRefIt it = graph->nodes.begin();
+    for (auto it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
         strncpy(tmp, (*it)->info().c_str(), tmp_size);
         agnode(G, tmp, true);
     }
 
-    for (NodeRefIt it = graph->nodes.begin();
+    for (auto it = graph->nodes.begin();
             it != graph->nodes.end(); it++)
     {
 

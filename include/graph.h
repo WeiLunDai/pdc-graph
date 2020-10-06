@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <cstring>
+#include <memory>
 #include <stack>
 #include <map>
 #include <vector>
@@ -33,7 +34,7 @@ class Node;
 class _node {
     friend class Node;
     std::string _info;
-    std::vector<Node*> _to;
+    std::vector< std::shared_ptr<Node> > _to;
     size_t _now_at;
 };
 
@@ -59,7 +60,7 @@ public:
 
     // info:
     Info info() const; 
-    bool isTo(Node& node);
+    bool isTo(Node& target);
     size_t edgeSize() const;
 
     // selector:
