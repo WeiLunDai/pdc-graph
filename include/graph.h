@@ -40,7 +40,7 @@ class _node {
 
 class Node {
 private:
-    _node* node;
+    std::unique_ptr<_node> node;
 
 public:
     // init:
@@ -55,17 +55,17 @@ public:
     bool operator!=(Node& rhs);
 
     // edit:
-    void add(Node& dest);
-    void del(Node& dest);  
+    void add(Node* dest);
+    void del(Node* dest);  
 
     // info:
     Info info() const; 
-    bool isTo(Node& target);
+    bool isTo(Node* target);
     size_t edgeSize() const;
 
     // selector:
     void begin();
-    Node& to();
+    Node* to();
     void next();
 };
 
@@ -98,11 +98,11 @@ class _edge {
 
 class Edge {
 private:
-    _edge* edge;
+    std::unique_ptr<_edge> edge;
 
 public:
     // init:
-    Edge(Node& ref);
+    Edge(Node* ref);
     // Edge(Edge& e);
     ~Edge();
 
@@ -114,8 +114,8 @@ public:
     bool operator!=(Edge& e);
 
     // selector:
-    Node& here();
-    Node& to();
+    Node* here();
+    Node* to();
     void begin();
     void next();
 
@@ -150,15 +150,13 @@ public:
 class _graph {
     friend class Graph;
     std::string _info;
-    std::vector<Node*> nodes;
-    std::stack<Node*> stk;
+    std::vector< std::shared_ptr<Node> > nodes;
+    // std::stack< Node* > stk;
 };
 
 class Graph {
 private:
-    _graph* graph;
-    bool gt_alloc = false;
-    typedef std::vector<Node*>::iterator NodeRefIt;
+    std::unique_ptr<_graph> graph;
 
 public:
     typedef std::multimap< std::string, std::string > GraphTable;
@@ -166,32 +164,39 @@ public:
     // init:
     Graph();
     Graph(const Graph& ref);
-    Graph(GraphTable);
+    Graph(GraphTable& gt);
     ~Graph();
 
     Graph& operator=(const Graph& rhs);
 
     // info:
-    Node* find(Node& target);
-    Edge* find(Edge& edge);
+    Node* find(Node* target);
+    Node* find(Info info);
+    Edge* find(Edge* edge);
+    Edge* find(Info src_info, Info dest_Info);
     Info info();
     size_t nodeSize();
     size_t edgeSize();
 
     // selector:
-    void next();
+    // void next();
 
     // edit:
-    void add(Node& node);
-    void add(Edge& edge);
-    bool del(Node& node);
-    bool del(Edge& edge);
+    void add(Node* node);
+    void add(Info info);
+    void add(Edge* edge);
+    void add(Info src_info, Info dest_info);
+
+    bool del(Node* node);
+    bool del(Info info);
+    bool del(Edge* edge);
+    bool del(Info src_info, Info dest_info);
 
     // travel:
-    Graph& breathFirstSearch(Node& node);
-    Graph& depthFirstSearch(Node& node);
+    Graph* breathFirstSearch(Node* node);
+    Graph* depthFirstSearch(Node* node);
 
-    void exportPngByte();
+    void exportPng();
 };
 
 #endif

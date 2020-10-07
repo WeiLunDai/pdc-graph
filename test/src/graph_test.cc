@@ -1,5 +1,6 @@
 #include "graph_test.h"
 #include "graph.h"
+#include <string>
 
 void GraphTest::SetUp()
 {
@@ -9,19 +10,16 @@ std::string GraphTest::find_node()
 {
     Graph g = Graph();
     Node n = Node("main");
-    g.add(n);
+    g.add(&n);
 
     return g.info();
 }
 
 std::string GraphTest::find_edge()
 {
-    Graph g = Graph();
-    Node n = Node("main");
-    Node n2 = Node("N2");
-    n.add(n2);
-    Edge e = Edge(n);
-    g.add(e);
+    std::string name[] = {"main", "N2"};
+    Graph g;
+    g.add(name[0], name[1]);
 
     return g.info();
 }
@@ -35,7 +33,7 @@ std::string GraphTest::nodeSize()
     for (int i = 0; i < 10; i++)
     {
         na[i] = Node(std::to_string(i));
-        g.add(na[i]);
+        g.add(&na[i]);
         tmp += std::to_string(g.nodeSize());
     }
     return tmp;
@@ -46,17 +44,10 @@ std::string GraphTest::edgeSize()
     std::string tmp;
     Graph g;
     tmp += std::to_string(g.edgeSize());
-    Node n = Node("main");
-    Node na[10];
 
     for (int i = 0; i < 10; i++)
     {
-        na[i] = Node(std::to_string(i));
-        n.add(na[i]);
-        n.next();
-
-        Edge e = Edge(n);
-        g.add(e);
+        g.add(std::string("main"), std::to_string(i));
         tmp += std::to_string(g.edgeSize());
     }
     return tmp;
@@ -64,14 +55,12 @@ std::string GraphTest::edgeSize()
 
 std::string GraphTest::add_node()
 {
-    Node n = Node("main");
-    Node na[5];
     Graph g;
-    g.add(n);
+    g.add(std::string("main"));
+
     for (int i = 0; i < 5; i++)
     {
-        na[i] = Node(std::to_string(i+500));
-        g.add(na[i]);
+        g.add(std::to_string(i+500));
     }
 
     return g.info();
@@ -80,17 +69,10 @@ std::string GraphTest::add_node()
 std::string GraphTest::add_edge()
 {
     Graph g;
-    Node n = Node("main");
-    Node na[5];
 
     for (int i = 0; i < 5; i++)
     {
-        na[i] = Node(std::to_string(i+500));
-        n.add(na[i]);
-        n.next();
-
-        Edge e = Edge(n);
-        g.add(e);
+        g.add(std::string("main"), std::to_string(i+500));
     }
 
     return g.info();
@@ -98,19 +80,15 @@ std::string GraphTest::add_edge()
 
 std::string GraphTest::del_node()
 {
-    Node n = Node("main");
     Node na[5];
     Graph g;
-    g.add(n);
+    g.add(std::string("main"));
     for (int i = 0; i < 5; i++)
     {
-        na[i] = Node(std::to_string(i+500));
-        g.add(na[i]);
+        g.add(std::to_string(i+500));
     }
 
-    Node tmp_n;
-    tmp_n = Node(std::to_string(503));
-    g.del(tmp_n);
+    g.del(std::to_string(503));
 
     return g.info();
 }
@@ -118,24 +96,13 @@ std::string GraphTest::del_node()
 std::string GraphTest::del_edge()
 {
     Graph g;
-    Node n = Node("main");
-    Node na[5];
 
     for (int i = 0; i < 5; i++)
     {
-        na[i] = Node(std::to_string(i+100));
-        n.add(na[i]);
-        n.next();
-
-        Edge e = Edge(n);
-        g.add(e);
+        g.add(std::string("main"), std::to_string(i+100));
     }
 
-    n.begin();
-    Edge en = Edge(n);
-    en.next();
-    en.next();
-    g.del(en);
+    g.del(std::string("main"), std::string("102"));
 
     return g.info();
 }
@@ -149,10 +116,7 @@ std::string GraphTest::runDFS()
         {"4", "6"}, {"5", "1"}, {"6", "5"} } ;
 
     Graph g(gt);
-    Graph tmp;
-    tmp = g.depthFirstSearch(n);
-
-    return tmp.info();
+    return g.depthFirstSearch(&n)->info();
 }
 
 std::string GraphTest::runBFS()
@@ -164,10 +128,7 @@ std::string GraphTest::runBFS()
         {"4", "6"}, {"5", "1"}, {"6", "5"} } ;
 
     Graph g(gt);
-    Graph tmp;
-    tmp = g.breathFirstSearch(n);
-
-    return tmp.info();
+    return g.breathFirstSearch(&n)->info();
 }
 
 bool GraphTest::exportGraph()

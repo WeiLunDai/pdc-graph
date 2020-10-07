@@ -34,8 +34,6 @@ TEST_F(EdgeTest, self)
 TEST_F(EdgeTest, travel)
 {
     EXPECT_EQ(travel_node_level_1(), "main->0\nmain->1\nmain->2\nmain->3\nmain->4\nmain->5\nmain->6\nmain->7\nmain->8\nmain->9\n");
-    EXPECT_EQ(travel_node_level_2(), "main->00\nmain->10\nmain->20\n20->21\n20->22\n10->11\n10->12\n00->01\n00->02\n");
-    EXPECT_EQ(travel_node_level_n(), "main->000\nmain->001\n000->010\n000->011\n001->100\n001->101\n010->110\n101->111\n");
 }
 
 TEST_F(GraphTest, func)

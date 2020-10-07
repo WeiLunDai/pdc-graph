@@ -40,7 +40,7 @@ inline int TreeArea::height() const
 
 bool TreeArea::on_draw(CairoRef cr)
 {
-    hg->graph->exportPngByte();
+    hg->graph->exportPng();
 
     Glib::RefPtr<Gdk::Pixbuf> image = Gdk::Pixbuf::create_from_file("./title.png");
 
@@ -131,28 +131,21 @@ void HelloGraph::add_node()
 {
     Node node = Node( m_entry_node.get_text() );
 
-    graph->add(node);
+    graph->add(&node);
 
     treeArea.queue_draw();
 }
 
 void HelloGraph::del_node()
 {
-    Node node = Node( m_entry_node.get_text() );
-
-    graph->del(node);
+    graph->del( m_entry_node.get_text() );
 
     treeArea.queue_draw();
 }
 
 void HelloGraph::add_edge()
 {
-    Node src_node = Node( m_entry_src.get_text() );
-    Node dest_node = Node( m_entry_dest.get_text() );
-    src_node.add(dest_node);
-    Edge edge = Edge(src_node);
-
-    graph->add(edge);
+    graph->add(m_entry_src.get_text(), m_entry_dest.get_text());
     //std::cout << graph.info() << std::endl;
 
     treeArea.queue_draw();
@@ -160,12 +153,7 @@ void HelloGraph::add_edge()
 
 void HelloGraph::del_edge()
 {
-    Node src_node = Node( m_entry_src.get_text() );
-    Node dest_node = Node( m_entry_dest.get_text() );
-    src_node.add(dest_node);
-    Edge edge = Edge(src_node);
-
-    graph->del(edge);
+    graph->del(m_entry_src.get_text(), m_entry_dest.get_text());
     //std::cout << graph.info() << std::endl;
 
     treeArea.queue_draw();
@@ -174,7 +162,7 @@ void HelloGraph::del_edge()
 void HelloGraph::dfs()
 {
     Node node = Node(m_entry_node.get_text());
-    Graph* tmp_graph = new Graph(graph->depthFirstSearch(node));
+    Graph* tmp_graph = graph->depthFirstSearch(&node);
     //*tmp_graph = graph->depthFirstSearch(node);
     //delete(graph);
     //graph = tmp_graph;
@@ -186,7 +174,7 @@ void HelloGraph::dfs()
 void HelloGraph::bfs()
 {
     Node node = Node(m_entry_node.get_text());
-    Graph* tmp_graph = new Graph(graph->breathFirstSearch(node));
+    Graph* tmp_graph = graph->breathFirstSearch(&node);
     // delete(graph);
     // graph = tmp_graph;
     std::cout << tmp_graph->info();
