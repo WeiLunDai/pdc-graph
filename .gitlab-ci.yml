@@ -17,19 +17,19 @@ meson:
     - ninja
     - ninja test
 
-cmake:
-  # stage: build
-  # instead of calling g++ directly you can also use some build toolkit like make
-  # install the necessary build tools when needed
-  before_script:
-      - apt update
-      - apt -y install meson libgtkmm-3.0-dev libgraphviz-dev libgtest-dev cmake
-  #   - apt update && apt -y install make autoconf
-  script:
-    - mkdir build
-    - cd ./build
-    - cmake -G "Ninja" ..
-    - ninja
+# cmake:
+#   # stage: build
+#   # instead of calling g++ directly you can also use some build toolkit like make
+#   # install the necessary build tools when needed
+#   before_script:
+#       - apt update
+#       - apt -y install meson libgtkmm-3.0-dev libgraphviz-dev libgtest-dev cmake
+#   #   - apt update && apt -y install make autoconf
+#   script:
+#     - mkdir build
+#     - cd ./build
+#     - cmake -G "Ninja" ..
+#     - ninja
 
   #artifacts:
     #paths:
