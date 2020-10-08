@@ -13,4 +13,5 @@ A simple and experimental gui which used to show a graph structure.
 * clang libtooling
 * Improve test covering
 * Complete build automation
+* Due to memory leakage of library we may consider to use other library
 
