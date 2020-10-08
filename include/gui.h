@@ -17,6 +17,7 @@
 #include <gtkmm/paned.h>
 #include <gtkmm/widget.h>
 #include <gtkmm/window.h>
+#include <memory>
 
 class HelloGraph;
 class TreeArea : public Gtk::DrawingArea
@@ -44,7 +45,7 @@ private:
     std::ofstream out;
 
 public:
-    Graph* graph;
+    std::shared_ptr<Graph> graph;
     HelloGraph();
     ~HelloGraph();
 

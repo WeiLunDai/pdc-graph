@@ -4,7 +4,7 @@ project('c++ graph display by gtkmm ', 'cpp',
   license : 'MIT')
 
 # project arguments
-add_global_arguments('-DSOME_TOKEN=value', language : 'cpp')
+add_global_arguments('-DSOME_TOKEN=value -g', language : 'cpp')
 
 # project main dependencies
 lib_dep = [dependency('gtkmm-3.0'), dependency('libgvc')]

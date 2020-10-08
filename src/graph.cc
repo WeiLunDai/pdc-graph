@@ -476,7 +476,9 @@ Graph* Graph::breathFirstSearch(Node* node)
     size_t edge_num = 0;
 
     // internal item
-    static std::shared_ptr<Graph> travel(new Graph());
+    static std::shared_ptr<Graph> travel;
+    travel.reset();
+    travel = std::shared_ptr<Graph>(new Graph());
     // turn on flag for auto relax memory
 
     Node* start = find(node);
@@ -516,7 +518,9 @@ Graph* Graph::depthFirstSearch(Node* node)
     size_t edge_num = 0;
 
     // internal item
-    static std::shared_ptr<Graph> travel(new Graph());
+    static std::shared_ptr<Graph> travel;
+    travel.reset();
+    travel = std::shared_ptr<Graph>(new Graph());
     // turn on flag for auto relax memory
 
     Node* start = find(node);

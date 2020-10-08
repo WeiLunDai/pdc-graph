@@ -16,6 +16,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <memory>
 
 /*----------------------------------*/
 
@@ -119,7 +120,6 @@ HelloGraph::HelloGraph() :
 
 HelloGraph::~HelloGraph()
 {
-    delete(graph);
     out.close();
     // Gtk::Widget* en =  m_pan.get_child1();
     // Glib::ustring str = ((Gtk::Entry*)en)->get_text();
@@ -163,6 +163,8 @@ void HelloGraph::dfs()
 {
     Node node = Node(m_entry_node.get_text());
     Graph* tmp_graph = graph->depthFirstSearch(&node);
+
+    graph = std::shared_ptr<Graph>(new Graph(*tmp_graph));
     //*tmp_graph = graph->depthFirstSearch(node);
     //delete(graph);
     //graph = tmp_graph;
@@ -175,6 +177,8 @@ void HelloGraph::bfs()
 {
     Node node = Node(m_entry_node.get_text());
     Graph* tmp_graph = graph->breathFirstSearch(&node);
+
+    graph = std::shared_ptr<Graph>(new Graph(*tmp_graph));
     // delete(graph);
     // graph = tmp_graph;
     std::cout << tmp_graph->info();
@@ -184,8 +188,8 @@ void HelloGraph::bfs()
 
 void HelloGraph::clear()
 {
-    delete(graph);
-    graph = new Graph();
+    graph.reset();
+    graph = std::shared_ptr<Graph>(new Graph());
 
     treeArea.queue_draw();
 }
