@@ -1,9 +1,9 @@
 #ifndef __GRAPH_TEST_SUITE_H__
 #define __GRAPH_TEST_SUITE_H__
 
-#include "node_test.h"
-#include "edge_test.h"
-#include "graph_test.h"
+#include "test_node.h"
+#include "test_edge.h"
+#include "test_graph.h"
 #include <gtest/gtest.h>
 
 TEST_F(NodeTest, self)

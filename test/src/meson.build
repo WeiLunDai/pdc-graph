@@ -1,10 +1,10 @@
 
 # test source file
-src_test = ['node_test.cc', 'edge_test.cc', 'graph_test.cc']
+src_test = ['test_node.cc', 'test_edge.cc', 'test_graph.cc']
 
 # generate shared library for test
 # install isn't necessary
-testlib = shared_library('graph_test',
+testlib = shared_library('test_graph',
     src_test, 
     include_directories : test_inc, 
     dependencies : test_dep,

@@ -1,4 +1,4 @@
-#include "node_test.h"
+#include "test_node.h"
 #include "graph.h"
 
 void NodeTest::SetUp()

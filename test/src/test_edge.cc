@@ -1,4 +1,4 @@
-#include "edge_test.h"
+#include "test_edge.h"
 #include "graph.h"
 #include <queue>
 

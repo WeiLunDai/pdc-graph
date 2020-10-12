@@ -1,5 +1,5 @@
 
-#include "graph_test_suite.h"
+#include "test_suite_graph.h"
 // add new test suite on the above
 // this is entry point for test
 
