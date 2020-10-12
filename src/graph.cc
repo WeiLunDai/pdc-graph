@@ -511,6 +511,12 @@ Graph* Graph::breathFirstSearch(Node* node)
     return travel.get();
 }
 
+Graph* Graph::breathFirstSearch(Info info)
+{
+    Node n(info);
+    return breathFirstSearch(&n);
+}
+
 // generate a clone of grapn by DFS
 Graph* Graph::depthFirstSearch(Node* node)
 {
@@ -556,6 +562,12 @@ Graph* Graph::depthFirstSearch(Node* node)
 
     }
     return travel.get();
+}
+
+Graph* Graph::depthFirstSearch(Info info)
+{
+    Node n(info);
+    return depthFirstSearch(&n);
 }
 
 void Graph::exportPng()

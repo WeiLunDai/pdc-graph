@@ -194,7 +194,9 @@ public:
 
     // travel:
     Graph* breathFirstSearch(Node* node);
+    Graph* breathFirstSearch(Info info);
     Graph* depthFirstSearch(Node* node);
+    Graph* depthFirstSearch(Info info);
 
     void exportPng();
 };

@@ -1,26 +1,77 @@
-#ifndef __NODE_TEST_H__
-#define __NODE_TEST_H__
+#pragma once
 
 #include <gtest/gtest.h>
+#include <string>
+#include "graph.h"
 
-class NodeTest : public ::testing::Test
+// class NodeTest : public ::testing::Test
+// {
+// protected:
+//     void SetUp() override;
+//
+//     std::string self_name();
+//     std::string self_size();
+//     std::string self_isTo();
+//     std::string self_next();
+//     std::string self_to_zero();
+//
+//     std::string add_one_node();
+//     std::string add_more_node();
+//     std::string del_one_node();
+//     std::string del_more_node();
+//
+//     void TearDown() override;
+// };
+
+
+/* TestNode - self
+ *  . info of one node
+ *  . info of to node when edge size is zero
+ *  . edgeSize
+ *  . isTo when exist
+ *  . isTo when not exist
+ *
+ * */
+TEST(TestNode, self)
 {
-protected:
-    void SetUp() override;
+    Node n = Node("Main");
+    EXPECT_EQ(n.info(), "Main");
 
-    std::string self_name();
-    std::string self_size();
-    std::string self_isTo();
-    std::string self_next();
-    std::string self_to_zero();
+    EXPECT_EQ(n.to()->info(), "Main");
 
-    std::string add_one_node();
-    std::string add_more_node();
-    std::string del_one_node();
-    std::string del_more_node();
+    Node na[10];
+    for (size_t i = 0; i < 10; i++)
+    {
+        EXPECT_EQ(n.edgeSize(), i);
 
-    void TearDown() override;
-};
+        na[i] = Node(std::to_string(i));
+        n.add(&na[i]);
+    }
+    EXPECT_EQ(n.edgeSize(), 10);
+
+    Node target = Node("1");
+    EXPECT_TRUE(n.isTo( &target ));
+
+    target = Node("11");
+    EXPECT_FALSE(n.isTo( &target ));
+}
+
+TEST(TestNode, edit)
+{
+    Node n = Node("Main");
+    Node na[10];
+    for (int i = 0; i < 10; i++)
+    {
+        na[i] = Node(std::to_string(i));
+        n.add(&na[i]);
+        n.next();
+        EXPECT_EQ(n.to()->info(), std::to_string(i));
+    }
+
+    Node target = Node("4");
+    n.del( &target );
+    EXPECT_FALSE( target.isTo(&target) );
+}
 
 // TEST_F(NodeTest, self)
 // {
@@ -116,5 +167,3 @@ protected:
     // EXPECT_TRUE(find_edge_not_exist());
 // }
 //
-
-#endif

@@ -1,20 +1,49 @@
-#ifndef __EDGE_TEST_H__
-#define __EDGE_TEST_H__
+#pragma once
 
+#include "graph.h"
 #include <gtest/gtest.h>
 
-class EdgeTest : public ::testing::Test
+// #include <gtest/gtest.h>
+//
+// class EdgeTest : public ::testing::Test
+// {
+// protected:
+//     void SetUp() override;
+//
+//     std::string self_edge();
+//     std::string self_next();
+//     std::string self_move();
+//
+//     std::string travel_node_level_1();
+//
+//     void TearDown() override;
+// };
+
+/* TestEdge - self
+ *  . edge iteration on node
+ *  . edge move on node
+ *
+ * */
+TEST(TestEdge, self)
 {
-protected:
-    void SetUp() override;
-    
-    std::string self_edge();
-    std::string self_next();
-    std::string self_move();
+    Node n = Node("main");
+    Node na[10];
+    for (int i = 0; i < 10; i++)
+    {
+        na[i] = Node(std::to_string(i));
+        n.add(&na[i]);
+    }
+    Edge e(&n);
 
-    std::string travel_node_level_1();
+    e.begin();
+    for (size_t i = 0; i < e.here()->edgeSize(); i++)
+    {
+        EXPECT_EQ(e.info(), "main->" + std::to_string(i) + "\n");
+        e.next();
+    }
+    e.begin();
+    e.move();
 
-    void TearDown() override;
-};
+    EXPECT_EQ(e.to()->info(), e.here()->info());
 
-#endif
+}
