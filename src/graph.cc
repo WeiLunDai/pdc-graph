@@ -13,44 +13,41 @@
 
 /*---------------*/
 
-Node::Node() :
-    node(new _node())
+Node::Node()
 {
-    node->_info = "";
-    node->_now_at = 0;
+    _info = "";
+    _now_at = 0;
 }
 
-Node::Node(Info name) :
-    node(new _node())
+Node::Node(Info name)
 {
-    node->_info.assign(name);
-    node->_now_at = 0;
+    _info.assign(name);
+    _now_at = 0;
 }
 
-Node::Node(const Node& ref) :
-    node(new _node())
+Node::Node(const Node& ref)
 {
-    node->_info.assign(ref.node->_info);
-    node->_to.assign(ref.node->_to.begin(), ref.node->_to.end());
-    node->_now_at = ref.node->_now_at;
+    _info.assign(ref._info);
+    _to.assign(ref._to.begin(), ref._to.end());
+    _now_at = ref._now_at;
 }
 
 Node::~Node()
 {
 }
 
-const Node& Node::operator=(const Node& rhs) const
+const Node& Node::operator=(const Node& rhs) 
 {
-    node->_info.assign(rhs.node->_info);
-    node->_to.assign(rhs.node->_to.begin(), rhs.node->_to.end());
+    _info.assign(rhs._info);
+    _to.assign(rhs._to.begin(), rhs._to.end());
 
-    node->_now_at = rhs.node->_now_at;
+    _now_at = rhs._now_at;
     return *this;
 }
 
 bool Node::operator==(const Node& rhs) const
 {
-    return node->_info == rhs.node->_info;
+    return _info == rhs._info;
 }
 
 bool Node::operator!=(Node& rhs)
@@ -63,36 +60,43 @@ void Node::add(Node* dest)
 {
     if ( !isTo(dest) )
     {
-        node->_to.push_back(
+        _to.push_back(
                 std::shared_ptr<Node>(new Node(*dest)));
     }
 }
 
 void Node::del(Node* dest)
 {
-    begin();
-    for (size_t i = 0; i < edgeSize(); i++, next())
+    auto it = _to.begin();
+    while (it != _to.end())
     {
-        if (*to() == *dest)
-        {
-            node->_to.erase( node->_to.begin() + node->_now_at );
-            node->_now_at = 0;
-        }
+        if ( *it->get() == *dest)
+            it = _to.erase(it);
+        else
+            it++;
     }
+    // begin();
+    // for (size_t i = 0; i < edgeSize(); i++, next())
+    // {
+    //     if (*to() == *dest)
+    //     {
+    //         node->_to.erase( node->_to.begin() + node->_now_at );
+    //         node->_now_at = 0;
+    //     }
+    // }
 }
 
 // info:
 Info Node::info() const
 {
-    return node->_info;
+    return _info;
 }
 
 bool Node::isTo(Node* target)
 {
-    for (auto it = node->_to.begin();
-            it != node->_to.end(); it++)
+    for (auto &it : _to)
     {
-        if ( **it == *target )
+        if ( *it == *target )
             return true;
     }
     return false;
@@ -100,41 +104,40 @@ bool Node::isTo(Node* target)
 
 size_t Node::edgeSize() const
 {
-    return node->_to.size();
+    return _to.size();
 }
 
 // selector:
 void Node::begin()
 {
-    node->_now_at = 0;
+    _now_at = 0;
 }
 
 Node* Node::to()
 {
     // Node has no edge will to itself
-    if (node->_to.size() == 0)
+    if (_to.size() == 0)
         return this;
 
-    if (node->_now_at >= node->_to.size())
-        node->_now_at = 0;
+    if (_now_at >= _to.size())
+        _now_at = 0;
 
-    return node->_to.at(node->_now_at).get();
+    return _to.at(_now_at).get();
 }
 void Node::next()
 {
-    if (++(node->_now_at) >= node->_to.size())
-        node->_now_at = 0;
+    if (++(_now_at) >= _to.size())
+        _now_at = 0;
 }
 
 /*-------------*/
 
 // init:
-Edge::Edge(Node* ref) :
-    edge(new _edge())
+Edge::Edge(Node* ref)
 {
-    edge->_source = ref;
-    edge->_destination = ref->to();
-    edge->_info = source().info() + "->" + dest().info() + "\n"; 
+    _source = ref;
+    _destination = ref->to();
+    _info = source().info() + "->" + dest().info() + "\n"; 
 }
 
 Edge::~Edge()
@@ -144,18 +147,18 @@ Edge::~Edge()
 // info:
 const Node& Edge::source() const
 {
-    return *edge->_source;
+    return *_source;
 }
 
 const Node& Edge::dest() const
 {
-    return *edge->_destination;
+    return *_destination;
 }
 
 Info Edge::info()
 {
-    edge->_info = source().info() + "->" + dest().info() + "\n"; 
-    return edge->_info;
+    _info = source().info() + "->" + dest().info() + "\n"; 
+    return _info;
 }
 
 bool Edge::operator==(Edge& e)
@@ -171,55 +174,51 @@ bool Edge::operator!=(Edge& e)
 // selector:
 Node* Edge::here()
 {
-    return edge->_source;
+    return _source;
 }
 
 void Edge::begin()
 {
-    edge->_source->begin();
+    _source->begin();
 }
 
 Node* Edge::to()
 {
-    return edge->_destination;
+    return _destination;
 }
 
 void Edge::next()
 {
-    edge->_source->next();
-    edge->_destination = edge->_source->to();
+    _source->next();
+    _destination = _source->to();
 }
 
 // edit:
 void Edge::move()
 {
-    edge->_source = here()->to();
-    edge->_destination = here()->to();
+    _source = here()->to();
+    _destination = here()->to();
 }
 
 /*-------------*/
 
 // init:
-Graph::Graph() :
-    graph(new _graph())
+Graph::Graph()
 {
 }
 
-Graph::Graph(const Graph& ref) :
-    graph(new _graph())
+Graph::Graph(const Graph& ref)
 {
-    graph->_info.assign(ref.graph->_info);
-    graph->nodes.assign(ref.graph->nodes.begin(), ref.graph->nodes.end());
+    _info.assign(ref._info);
+    nodes.assign(ref.nodes.begin(), ref.nodes.end());
 }
 
-Graph::Graph(GraphTable& gt) :
-    graph(new _graph())
+Graph::Graph(GraphTable& gt)
 {
     // node dict
-    std::set<std::string> dict;
-    for (auto it = gt.begin(); it != gt.end(); it++)
+    for (auto &it : gt)
     {
-        add(it->first, it->second);
+        add(it.first, it.second);
     }
 }
 
@@ -229,8 +228,8 @@ Graph::~Graph()
 
 Graph& Graph::operator=(const Graph& rhs)
 {
-    graph->_info.assign(rhs.graph->_info);
-    graph->nodes.assign(rhs.graph->nodes.begin(), rhs.graph->nodes.end());
+    _info.assign(rhs._info);
+    nodes.assign(rhs.nodes.begin(), rhs.nodes.end());
 
     return *this;
 }
@@ -240,11 +239,10 @@ Graph& Graph::operator=(const Graph& rhs)
 // if no found return nullptr
 Node* Graph::find(Node* target)
 {
-    for (auto it = graph->nodes.begin();
-            it != graph->nodes.end(); it++)
+    for (auto &it : nodes)
     {
-        if (**it == *target)
-            return (*it).get();
+        if (*it == *target)
+            return it.get();
     }
     return nullptr;
 }
@@ -290,45 +288,43 @@ Edge* Graph::find(Info src_info, Info dest_info)
 
 Info Graph::info()
 {
-    graph->_info = "";
-    for (auto it = graph->nodes.begin();
-            it != graph->nodes.end(); it++)
+    _info = "";
+    for (auto &it : nodes)
     {
         // set being for test
-        (*it)->begin();
+        it->begin();
 
         // if no edge, then only return name and "\n"
-        if ((*it)->edgeSize() == 0)
+        if (it->edgeSize() == 0)
         {
-            graph->_info += (*it)->info() + "\n";
+            _info += it->info() + "\n";
         }
         else
         {
-            for (size_t i = 0; i < (*it)->edgeSize(); i++)
+            for (size_t i = 0; i < it->edgeSize(); i++)
             {
-                Edge tmp(it->get());
-                graph->_info += tmp.info();
+                Edge tmp(it.get());
+                _info += tmp.info();
 
-                (*it)->next();
+                it->next();
             }
         }
     }
-    return graph->_info;
+    return _info;
 }
 
 size_t Graph::nodeSize()
 {
-    return graph->nodes.size();
+    return nodes.size();
 }
 
 size_t Graph::edgeSize()
 {
     size_t count = 0;
 
-    for (auto it = graph->nodes.begin();
-            it != graph->nodes.end(); it++)
+    for (auto &it : nodes)
     {
-        count += (*it)->edgeSize();
+        count += it->edgeSize();
     }
 
     return count;
@@ -362,7 +358,7 @@ void Graph::add(Node* node)
 {
     if ( find(node) == nullptr )
     {
-        graph->nodes.push_back(
+        nodes.push_back(
                 std::shared_ptr<Node>(new Node(node->info())));
     }
     // **We take this action into account is according to
@@ -411,27 +407,26 @@ void Graph::add(Info src_info, Info dest_info)
 bool Graph::del(Node* node)
 {
     bool status = false;
-    for (auto it = graph->nodes.begin();
-            it != graph->nodes.end(); it++)
+    for (auto &it : nodes)
     {
-        if ( (*it)->isTo(node) )
+        if ( it->isTo(node) )
         {
-            (*it)->del(node);
+            it->del(node);
         }
     }
 
-    int tmp;
-    for (auto it = graph->nodes.begin();
-            it != graph->nodes.end(); it++)
+    // int tmp;
+    auto it = nodes.begin();
+    while (it != nodes.end())
     {
         if (**it == *node)
         {
-            tmp = it - graph->nodes.begin();
+            it = nodes.erase(it);
             status = true;
         }
+        else 
+            it++;
     }
-    if (status)
-        graph->nodes.erase(graph->nodes.begin() + tmp);
 
     return status;
 }
@@ -527,7 +522,6 @@ Graph* Graph::depthFirstSearch(Node* node)
     static std::shared_ptr<Graph> travel;
     travel.reset();
     travel = std::shared_ptr<Graph>(new Graph());
-    // turn on flag for auto relax memory
 
     Node* start = find(node);
     if (start != nullptr)
@@ -572,39 +566,34 @@ Graph* Graph::depthFirstSearch(Info info)
 
 void Graph::exportPng()
 {
-    GVC_t *gvc;
-    Agraph_t *G;
     constexpr int tmp_size = 256;
     char tmp[tmp_size];
 
-    gvc = gvContext();
+    GVC_t *gvc = gvContext();
+    Agraph_t *G = agopen(tmp, Agdirected, 0);
 
     strncpy(tmp, "title", tmp_size);
-    G = agopen(tmp, Agdirected, 0);
 
-    for (auto it = graph->nodes.begin();
-            it != graph->nodes.end(); it++)
+    for (auto &it : nodes)
     {
-        strncpy(tmp, (*it)->info().c_str(), tmp_size);
+        strncpy(tmp, it->info().c_str(), tmp_size);
         agnode(G, tmp, true);
     }
 
-    for (auto it = graph->nodes.begin();
-            it != graph->nodes.end(); it++)
+    for (auto &it : nodes)
     {
 
         // loop for edge to 
 
-        Agnode_t *n1, *n2;
-        strncpy(tmp, (*it)->info().c_str(), tmp_size);
-        n1 = agnode(G, tmp, false);
+        strncpy(tmp, it->info().c_str(), tmp_size);
+        Agnode_t *n1 = agnode(G, tmp, false);
 
-        for (size_t i = 0; i < (*it)->edgeSize(); i++)
+        for (size_t i = 0; i < it->edgeSize(); i++)
         {
-            strncpy(tmp, (*it)->to()->info().c_str(), tmp_size);
-            n2 = agnode(G, tmp, false);
+            strncpy(tmp, it->to()->info().c_str(), tmp_size);
+            Agnode_t *n2 = agnode(G, tmp, false);
             agedge(G, n1, n2, 0, true);
-            (*it)->next();
+            it->next();
         }
     }
 
@@ -618,11 +607,9 @@ void Graph::exportPng()
     gvRenderData(gvc, G, "png", &result, &length);
 
     fwrite(result, length, 1, fp_png);
-
     fclose(fp_png);
 
     gvFreeLayout(gvc, G);
     agclose(G);
     gvFreeContext(gvc);
 }
-

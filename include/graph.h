@@ -30,17 +30,26 @@ typedef const std::string Info;
 // node.begin()     -> first node can go to
 // node.end()       -> last node can go to
 
-class Node;
-class _node {
-    friend class Node;
+// class Node;
+// class _node {
+//     friend class Node;
+//     std::string _info;
+//     std::vector< std::shared_ptr<Node> > _to;
+//     size_t _now_at;
+// };
+
+template <typename T>
+class basic_node : public std::vector< std::shared_ptr<T> >
+{
     std::string _info;
-    std::vector< std::shared_ptr<Node> > _to;
-    size_t _now_at;
 };
 
 class Node {
 private:
-    std::unique_ptr<_node> node;
+    // std::unique_ptr<_node> node;
+    std::string _info;
+    std::vector< std::shared_ptr<Node> > _to;
+    size_t _now_at;
 
 public:
     // init:
@@ -50,7 +59,7 @@ public:
     Node(const Node& ref);    
     ~Node();
 
-    const Node& operator=(const Node& rhs) const;
+    const Node& operator=(const Node& rhs);
     bool operator==(const Node& rhs) const;
     bool operator!=(Node& rhs);
 
@@ -89,16 +98,19 @@ public:
 // edge.move()      -> move source to dest
 //
 
-class _edge {
-    friend class Edge;
-    Node* _source;
-    Node* _destination;
-    std::string _info;
-};
+// class _edge {
+//     friend class Edge;
+//     Node* _source;
+//     Node* _destination;
+//     std::string _info;
+// };
 
 class Edge {
 private:
-    std::unique_ptr<_edge> edge;
+    // std::unique_ptr<_edge> edge;
+    Node* _source;
+    Node* _destination;
+    std::string _info;
 
 public:
     // init:
@@ -147,16 +159,19 @@ public:
 // graph.dfs()          -> do dfs
 //
 
-class _graph {
-    friend class Graph;
-    std::string _info;
-    std::vector< std::shared_ptr<Node> > nodes;
-    // std::stack< Node* > stk;
-};
+// class _graph {
+//     friend class Graph;
+//     std::string _info;
+//     std::vector< std::shared_ptr<Node> > nodes;
+//     // std::stack< Node* > stk;
+// };
 
 class Graph {
 private:
-    std::unique_ptr<_graph> graph;
+    // std::unique_ptr<_graph> graph;
+
+    std::string _info;
+    std::vector< std::shared_ptr<Node> > nodes;
 
 public:
     typedef std::multimap< std::string, std::string > GraphTable;
