@@ -153,7 +153,6 @@ HelloGraph::HelloGraph(BaseObjectType* cobject, RefBuilder refBuilder) :
         b_export->signal_clicked().connect(
                 sigc::mem_fun(treeArea, &TreeArea::exportData));
 };
-    // show_all_children();
 
 HelloGraph::~HelloGraph()
 {
