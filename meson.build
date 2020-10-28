@@ -1,5 +1,5 @@
 # project info
-project('c++ graph display by gtkmm ', 'cpp',
+project('graphDisplay', 'cpp',
   version : '1.0.0',
   license : 'MIT')
 
@@ -25,8 +25,15 @@ pkg_mod.generate(libraries : graphDlib,
                   filebase : 'gui_tree',
                   description : 'Graph display lib')
 
+configure_file(input : 'builder.ui',
+               output : 'builder.ui',
+               copy : true)
+
+install_data('builder.ui')
+
 # program entry point
-executable('main', 'hello_main.cc',
+executable('graphDisplay', 'hello_main.cc',
            include_directories : inc,
            dependencies : lib_dep,
-           link_with : graphDlib)
+           link_with : graphDlib,
+           install : true)

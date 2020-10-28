@@ -1,12 +1,14 @@
 #ifndef GTKMM_GUI_H
 #define GTKMM_GUI_H
 
+#include "glibmm/refptr.h"
 #include "graph.h"
 
 #include <fstream>
 #include <gtkmm.h>
 #include <cairo.h>
 #include <gtkmm/box.h>
+#include <gtkmm/builder.h>
 #include <gtkmm/button.h>
 #include <gtkmm/container.h>
 #include <gtkmm/entry.h>
@@ -23,67 +25,68 @@ class HelloGraph;
 class TreeArea : public Gtk::DrawingArea
 {
 private:
-    inline int width() const;
-    inline int height() const;
-
     HelloGraph* hg;
 
 public:
     typedef const Cairo::RefPtr<Cairo::Context>& CairoRef;
 
-    TreeArea(HelloGraph& hg);
+    TreeArea(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder);
     virtual ~TreeArea();
 
 protected:
-    bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+    bool on_draw(CairoRef cr) override;
 
 };
 
 class HelloGraph : public Gtk::Window
 {
 private:
-    std::ofstream out;
-
-public:
     std::shared_ptr<Graph> graph;
+
+    void redraw();
+public:
     HelloGraph();
+    HelloGraph(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder);
     ~HelloGraph();
 
     void add_node();
     void del_node();
     void add_edge();
     void del_edge();
+
     void dfs();
     void bfs();
     void clear();
     void exportData();
 
 protected:
-    Gtk::Paned m_pan;
+    TreeArea *treeArea;
 
-    TreeArea treeArea;
+    Gtk::Button* b_node_add;
+    Gtk::Button* b_node_del;
+    Gtk::Button* b_edge_add;
+    Gtk::Button* b_edge_del;
 
-    Gtk::Frame m_frame_node;
-    Gtk::Grid m_grid_node;
-    Gtk::Entry m_entry_node;
-    Gtk::Button m_but_add_node;
-    Gtk::Button m_but_del_node;
+    Gtk::Entry* e_node;
+    Gtk::Entry* e_edge_src;
+    Gtk::Entry* e_edge_dest;
 
-    Gtk::Frame m_frame_edge;
-    Gtk::Grid m_grid_edge;
-    Gtk::Entry m_entry_src;
-    Gtk::Entry m_entry_dest;
-    Gtk::Button m_but_add_edge;
-    Gtk::Button m_but_del_edge;
+    Gtk::Button* b_dfs;
+    Gtk::Button* b_bfs;
+    Gtk::Button* b_clear;
+    Gtk::Button* b_export;
 
-    Gtk::Frame m_frame_adv;
-    Gtk::VBox m_vbox_adv;
-    Gtk::Button m_but_dfs;
-    Gtk::Button m_but_bfs;
-    Gtk::Button m_but_clear;
-    Gtk::Button m_but_export;
+};
 
-    Gtk::VBox m_vbox;
+class GraphApp : public Gtk::Application
+{
+    private:
+    Glib::RefPtr<Gtk::Builder> build;
+    HelloGraph *window;
+
+    public:
+    GraphApp();
+    int run();
 };
 
 #endif

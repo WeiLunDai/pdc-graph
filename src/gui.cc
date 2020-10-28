@@ -10,9 +10,14 @@
 #include <glibmm.h>
 #include <glib.h>
 #include <gtkmm/aboutdialog.h>
+#include <gtkmm/builder.h>
+#include <gtkmm/button.h>
+#include <gtkmm/drawingarea.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/enums.h>
 #include <gtkmm/widget.h>
+#include <gtkmm/window.h>
+#include <ios>
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -20,32 +25,25 @@
 
 /*----------------------------------*/
 
-TreeArea::TreeArea(HelloGraph& hg)
+TreeArea::TreeArea(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder) :
+    Gtk::DrawingArea(cobject)
 {
-    this->hg = &hg;
+    HelloGraph *win;
+    refBuilder->get_widget_derived("window", win);
+    this->hg = win;
 }
 
 TreeArea::~TreeArea()
 {
 }
 
-inline int TreeArea::width() const
-{
-    return get_allocation().get_width();
-}
-
-inline int TreeArea::height() const
-{
-    return get_allocation().get_height();
-}
-
 bool TreeArea::on_draw(CairoRef cr)
 {
-    hg->graph->exportPng();
+    auto image = Gdk::Pixbuf::create_from_file("./title.png");
+    size_t width = get_allocation().get_width();
+    size_t height = get_allocation().get_height();
 
-    Glib::RefPtr<Gdk::Pixbuf> image = Gdk::Pixbuf::create_from_file("./title.png");
-
-    Gdk::Cairo::set_source_pixbuf(cr, image, (width() - image->get_width())/2, (height() - image->get_height())/2);
+    Gdk::Cairo::set_source_pixbuf(cr, image, (width - image->get_width())/2, (height - image->get_height())/2);
 
     cr->paint();
 
@@ -54,136 +52,104 @@ bool TreeArea::on_draw(CairoRef cr)
 
 /*----------------------------*/
 
-HelloGraph::HelloGraph() : 
-    graph(new Graph()),
-    m_pan(Gtk::ORIENTATION_HORIZONTAL),
-    treeArea(*this),
-    m_frame_node("Node"),
-    m_but_add_node("Add"),
-    m_but_del_node("del"),
-    m_frame_edge("Edge"),
-    m_but_add_edge("Add"),
-    m_but_del_edge("Del"),
-    m_frame_adv("Advance"),
-    m_but_dfs("DFS"),
-    m_but_bfs("BFS"),
-    m_but_clear("Clear"),
-    m_but_export("Export")
+HelloGraph::HelloGraph(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder) : 
+    Gtk::Window(cobject), graph(new Graph())
 {
-    out.open("output.txt", std::ios::out);
-    // init 
-    set_title("TreeDisplay");
-    set_default_size(600, 400); 
-    set_border_width(10);
+    refBuilder->get_widget_derived("tree_area", treeArea);
+    refBuilder->get_widget("node_add", b_node_add);
+    refBuilder->get_widget("node_del", b_node_del);
+    refBuilder->get_widget("edge_add", b_edge_add);
+    refBuilder->get_widget("edge_del", b_edge_del);
 
-    // main layout
-    add(m_pan);
-    m_pan.add1(m_vbox);
-    m_pan.add2(treeArea);
+    refBuilder->get_widget("node_entry", e_node);
+    refBuilder->get_widget("edge_src", e_edge_src);
+    refBuilder->get_widget("edge_dest", e_edge_dest);
 
-    // left part
-    m_vbox.pack_start(m_frame_node);
-    m_vbox.pack_start(m_frame_edge);
-    m_vbox.pack_start(m_frame_adv);
+    refBuilder->get_widget("dfs", b_dfs);
+    refBuilder->get_widget("bfs", b_bfs);
+    refBuilder->get_widget("clear", b_clear);
+    refBuilder->get_widget("export", b_export);
 
-    // node part
-    m_frame_node.add(m_grid_node);
-    m_grid_node.attach(m_entry_node, 0, 0, 2, 1);
-    m_grid_node.attach(m_but_add_node, 0, 1, 1, 1);
-    m_grid_node.attach(m_but_del_node, 1, 1, 1, 1);
+    if (b_node_add)
+        b_node_add->signal_clicked().connect(
+                sigc::mem_fun(*this, &HelloGraph::add_node));
+    if (b_node_del)
+        b_node_del->signal_clicked().connect(
+                sigc::mem_fun(*this, &HelloGraph::del_node));
+    if (b_edge_add)
+        b_edge_add->signal_clicked().connect(
+                sigc::mem_fun(*this, &HelloGraph::add_edge));
+    if (b_edge_del)
+        b_edge_del->signal_clicked().connect(
+                sigc::mem_fun(*this, &HelloGraph::del_edge));
+    if (b_dfs)
+        b_dfs->signal_clicked().connect(
+                sigc::mem_fun(*this, &HelloGraph::dfs));
+    if (b_bfs)
+        b_bfs->signal_clicked().connect(
+                sigc::mem_fun(*this, &HelloGraph::bfs));
+    if (b_clear)
+        b_clear->signal_clicked().connect(
+                sigc::mem_fun(*this, &HelloGraph::clear));
+    if (b_export)
+        b_export->signal_clicked().connect(
+                sigc::mem_fun(*this, &HelloGraph::exportData));
 
-    // edge part
-    m_frame_edge.add(m_grid_edge);
-    m_grid_edge.attach(m_entry_src, 0, 0, 1, 1);
-    m_grid_edge.attach(m_entry_dest, 1, 0, 1, 1);
-    m_grid_edge.attach(m_but_add_edge, 0, 1, 1, 1);
-    m_grid_edge.attach(m_but_del_edge, 1, 1, 1, 1);
-
-    // adv part
-    m_frame_adv.add(m_vbox_adv);
-    m_vbox_adv.pack_start(m_but_dfs);
-    m_vbox_adv.pack_start(m_but_bfs);
-    m_vbox_adv.pack_start(m_but_clear);
-    m_vbox_adv.pack_start(m_but_export);
-
-    m_but_add_node.signal_clicked().connect(sigc::mem_fun(*this, &HelloGraph::add_node));
-    m_but_del_node.signal_clicked().connect(sigc::mem_fun(*this, &HelloGraph::del_node));
-    m_but_add_edge.signal_clicked().connect(sigc::mem_fun(*this, &HelloGraph::add_edge));
-    m_but_del_edge.signal_clicked().connect(sigc::mem_fun(*this, &HelloGraph::del_edge));
-    m_but_dfs.signal_clicked().connect(sigc::mem_fun(*this, &HelloGraph::dfs));
-    m_but_bfs.signal_clicked().connect(sigc::mem_fun(*this, &HelloGraph::bfs));
-    m_but_clear.signal_clicked().connect(sigc::mem_fun(*this, &HelloGraph::clear));
-    m_but_export.signal_clicked().connect(sigc::mem_fun(*this, &HelloGraph::exportData));
-
-    show_all_children();
-}
-
-HelloGraph::~HelloGraph()
+    redraw();
+};
+    // show_all_children();
+void HelloGraph::redraw()
 {
-    out.close();
-    // Gtk::Widget* en =  m_pan.get_child1();
-    // Glib::ustring str = ((Gtk::Entry*)en)->get_text();
-    // Node new_node = Node(str.c_str());
-    // graph->add(new_node);
+    graph->exportPng();
+    treeArea->queue_draw();
 }
 
 void HelloGraph::add_node()
 {
-    Node node = Node( m_entry_node.get_text() );
-
-    graph->add(&node);
-
-    treeArea.queue_draw();
+    graph->add( e_node->get_text() );
+    redraw();
 }
 
 void HelloGraph::del_node()
 {
-    graph->del( m_entry_node.get_text() );
-
-    treeArea.queue_draw();
+    graph->del( e_node->get_text() );
+    redraw();
 }
 
 void HelloGraph::add_edge()
 {
-    graph->add(m_entry_src.get_text(), m_entry_dest.get_text());
-    //std::cout << graph.info() << std::endl;
-
-    treeArea.queue_draw();
+    graph->add(e_edge_src->get_text(), e_edge_dest->get_text());
+    redraw();
 }
 
 void HelloGraph::del_edge()
 {
-    graph->del(m_entry_src.get_text(), m_entry_dest.get_text());
-    //std::cout << graph.info() << std::endl;
+    graph->del(e_edge_src->get_text(), e_edge_dest->get_text());
+    redraw();
+}
 
-    treeArea.queue_draw();
+HelloGraph::~HelloGraph()
+{
 }
 
 void HelloGraph::dfs()
 {
-    Node node = Node(m_entry_node.get_text());
-    Graph* tmp_graph = graph->depthFirstSearch(&node);
+    Graph* tmp_graph = graph->depthFirstSearch( e_node->get_text() );
 
+    graph.reset();
     graph = std::shared_ptr<Graph>(new Graph(*tmp_graph));
-    //*tmp_graph = graph->depthFirstSearch(node);
-    //delete(graph);
-    //graph = tmp_graph;
-    std::cout << tmp_graph->info();
 
-    treeArea.queue_draw();
+    redraw();
 }
 
 void HelloGraph::bfs()
 {
-    Node node = Node(m_entry_node.get_text());
-    Graph* tmp_graph = graph->breathFirstSearch(&node);
+    Graph* tmp_graph = graph->breathFirstSearch( e_node->get_text() );
 
+    graph.reset();
     graph = std::shared_ptr<Graph>(new Graph(*tmp_graph));
-    // delete(graph);
-    // graph = tmp_graph;
-    std::cout << tmp_graph->info();
 
-    treeArea.queue_draw();
+    redraw();
 }
 
 void HelloGraph::clear()
@@ -191,11 +157,33 @@ void HelloGraph::clear()
     graph.reset();
     graph = std::shared_ptr<Graph>(new Graph());
 
-    treeArea.queue_draw();
+    redraw();
 }
 
 void HelloGraph::exportData()
 {
+    std::ofstream out("output.txt", std::ios::out | std::ios::app);
     out << graph->info();
+    out.close();
+}
+
+GraphApp::GraphApp() :
+    build(Gtk::Builder::create())
+{
+    try {
+        build->add_from_file("./builder.ui");
+    }
+    catch (const Gtk::BuilderError& ex)
+    {
+        std::cerr << "FileError: " << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    build->get_widget_derived("window", window);
+}
+
+int GraphApp::run() 
+{
+    return Gtk::Application::run(*window);
 }
 

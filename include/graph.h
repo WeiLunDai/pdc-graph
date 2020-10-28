@@ -42,6 +42,20 @@ template <typename T>
 class basic_node : public std::vector< std::shared_ptr<T> >
 {
     std::string _info;
+    public:
+    void add(T* nd) 
+    {
+        this->push_back(
+                std::shared_ptr<T>(new T(*nd)));
+    }
+
+};
+
+class node_info
+{
+    std::string _info;
+    public:
+    std::string info(){return _info;};
 };
 
 class Node {
@@ -169,6 +183,8 @@ public:
 class Graph {
 private:
     // std::unique_ptr<_graph> graph;
+
+    //basic_node<std::string> nodes;
 
     std::string _info;
     std::vector< std::shared_ptr<Node> > nodes;
