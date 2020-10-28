@@ -3,22 +3,6 @@
 #include "graph.h"
 #include <gtest/gtest.h>
 
-// #include <gtest/gtest.h>
-//
-// class EdgeTest : public ::testing::Test
-// {
-// protected:
-//     void SetUp() override;
-//
-//     std::string self_edge();
-//     std::string self_next();
-//     std::string self_move();
-//
-//     std::string travel_node_level_1();
-//
-//     void TearDown() override;
-// };
-
 /* TestEdge - self
  *  . edge iteration on node
  *  . edge move on node
